@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Monitor } from "lucide-react";
 import { toast } from "sonner";
+import logo from "@/assets/logo.jpg";
 
 const Login = () => {
   const { signIn } = useAuth();
@@ -38,10 +38,8 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
-            <Monitor className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <CardTitle className="text-2xl font-bold">TI Services</CardTitle>
+          <img src={logo} alt="Ponto Digital" className="mx-auto w-24 h-24 rounded-2xl object-contain" />
+          <CardTitle className="text-2xl font-bold">Ponto Digital</CardTitle>
           <p className="text-muted-foreground text-sm">{isSignUp ? "Crie sua conta de administrador" : "Faça login para acessar o painel"}</p>
         </CardHeader>
         <CardContent>

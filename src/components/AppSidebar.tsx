@@ -1,7 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { NavLink, useLocation } from "react-router-dom";
-import { Monitor, Wrench, Users, ClipboardList, BarChart3, LogOut, Share2 } from "lucide-react";
+import { Wrench, Users, ClipboardList, BarChart3, LogOut, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.jpg";
 
 const navItems = [
   { to: "/", icon: ClipboardList, label: "Atendimentos" },
@@ -17,11 +18,9 @@ const AppSidebar = () => {
 
   return (
     <aside className="w-64 min-h-screen bg-primary flex flex-col">
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
-          <Monitor className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <span className="text-primary-foreground font-bold text-lg">TI Services</span>
+      <div className="p-4 flex items-center gap-3">
+        <img src={logo} alt="Ponto Digital" className="w-12 h-12 rounded-xl object-contain bg-white/90" />
+        <span className="text-primary-foreground font-bold text-lg">Ponto Digital</span>
       </div>
 
       <nav className="flex-1 px-3 space-y-1">
