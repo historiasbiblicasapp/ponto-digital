@@ -1,0 +1,58 @@
+import { useAuth } from "@/contexts/AuthContext";
+import { NavLink, useLocation } from "react-router-dom";
+import { Monitor, Wrench, Users, ClipboardList, BarChart3, LogOut, Share2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const navItems = [
+  { to: "/", icon: ClipboardList, label: "Atendimentos" },
+  { to: "/services", icon: Wrench, label: "Serviços" },
+  { to: "/customers", icon: Users, label: "Clientes" },
+  { to: "/reports", icon: BarChart3, label: "Relatórios" },
+  { to: "/share", icon: Share2, label: "Compartilhar" },
+];
+
+const AppSidebar = () => {
+  const { signOut } = useAuth();
+  const location = useLocation();
+
+  return (
+    <aside className="w-64 min-h-screen bg-primary flex flex-col">
+      <div className="p-6 flex items-center gap-3">
+        <div className="w-10 h-10 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
+          <Monitor className="w-5 h-5 text-primary-foreground" />
+        </div>
+        <span className="text-primary-foreground font-bold text-lg">TI Services</span>
+      </div>
+
+      <nav className="flex-1 px-3 space-y-1">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+              location.pathname === item.to
+                ? "bg-primary-foreground/20 text-primary-foreground"
+                : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            )}
+          >
+            <item.icon className="w-5 h-5" />
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="p-3">
+        <button
+          onClick={signOut}
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground transition-colors w-full"
+        >
+          <LogOut className="w-5 h-5" />
+          Sair
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+export default AppSidebar;
