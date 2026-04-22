@@ -57,7 +57,7 @@ const ReportsPage = () => {
 
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text("Relatório de Atendimentos", 14, 22);
+    doc.text("Relatório de Vendas", 14, 22);
 
     if (startDate || endDate) {
       doc.setFontSize(10);
@@ -65,11 +65,11 @@ const ReportsPage = () => {
     }
 
     doc.setFontSize(10);
-    doc.text(`Total de atendimentos: ${orders.length} | Concluídos: ${completedOrders} | Receita total: R$ ${totalRevenue.toFixed(2)}`, 14, 38);
+    doc.text(`Total de vendas: ${orders.length} | Concluídas: ${completedOrders} | Receita total: R$ ${totalRevenue.toFixed(2)}`, 14, 38);
 
     autoTable(doc, {
       startY: 45,
-      head: [["Data", "Cliente", "Serviço", "Descrição", "Valor", "Status"]],
+      head: [["Data", "Cliente", "Produto", "Descrição", "Valor", "Status"]],
       body: orders.map((o) => [
         format(new Date(o.created_at), "dd/MM/yyyy"),
         (o.customers as any)?.name || "",
@@ -90,7 +90,7 @@ const ReportsPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Relatórios</h1>
-        <p className="text-muted-foreground">Filtre atendimentos por data e exporte para PDF</p>
+        <p className="text-muted-foreground">Filtre vendas por data e exporte para PDF</p>
       </div>
 
       <Card>
@@ -114,7 +114,7 @@ const ReportsPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total de Atendimentos</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total de Vendas</CardTitle></CardHeader>
           <CardContent><p className="text-3xl font-bold">{orders.length}</p></CardContent>
         </Card>
         <Card>
@@ -135,7 +135,7 @@ const ReportsPage = () => {
                 <TableRow>
                   <TableHead>Data</TableHead>
                   <TableHead>Cliente</TableHead>
-                  <TableHead>Serviço</TableHead>
+                  <TableHead>Produto</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>Status</TableHead>
@@ -153,7 +153,7 @@ const ReportsPage = () => {
                   </TableRow>
                 ))}
                 {orders.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhum atendimento encontrado</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhuma venda encontrada</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

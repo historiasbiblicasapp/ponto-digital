@@ -44,9 +44,9 @@ const ServicesPage = () => {
       setOpen(false);
       setEditing(null);
       setForm({ name: "", description: "", cost: "" });
-      toast.success("Serviço salvo com sucesso!");
+      toast.success("Produto salvo com sucesso!");
     },
-    onError: () => toast.error("Erro ao salvar serviço"),
+    onError: () => toast.error("Erro ao salvar produto"),
   });
 
   const deleteMutation = useMutation({
@@ -56,7 +56,7 @@ const ServicesPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
-      toast.success("Serviço removido!");
+      toast.success("Produto removido!");
     },
   });
 
@@ -94,16 +94,16 @@ const ServicesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Serviços</h1>
-          <p className="text-muted-foreground">Gerencie seus serviços e preços</p>
+          <h1 className="text-2xl font-bold text-foreground">Produtos</h1>
+          <p className="text-muted-foreground">Gerencie seus produtos e preços</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Novo Serviço</Button>
+            <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Novo Produto</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editing ? "Editar Serviço" : "Novo Serviço"}</DialogTitle>
+              <DialogTitle>{editing ? "Editar Produto" : "Novo Produto"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">

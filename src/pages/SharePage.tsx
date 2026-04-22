@@ -23,17 +23,17 @@ const SharePage = () => {
 
   const shareAllServices = () => {
     const lines = services.map((s) => `✅ ${s.name} - R$ ${Number(s.cost).toFixed(2)}`);
-    const text = `🖥️ *Serviços de TI Disponíveis*\n\n${lines.join("\n")}\n\n📞 Entre em contato para mais informações!`;
+    const text = `👗 *Produtos Disponíveis*\n\n${lines.join("\n")}\n\n📞 Entre em contato para mais informações!`;
     openWhatsApp(text);
   };
 
   const shareSingleService = (name: string, cost: number, description: string | null) => {
-    const text = `🖥️ *Oferta de Serviço de TI*\n\n✅ *${name}*\n${description || ""}\n💰 Valor: R$ ${cost.toFixed(2)}\n\n📞 Entre em contato para agendar!`;
+    const text = `👗 *Oferta de Produto*\n\n✅ *${name}*\n${description || ""}\n💰 Valor: R$ ${cost.toFixed(2)}\n\n📞 Entre em contato para comprar!`;
     openWhatsApp(text);
   };
 
   const shareQuote = (name: string, cost: number) => {
-    const text = `📋 *Orçamento de Serviço*\n\n🔧 Serviço: *${name}*\n💰 Valor estimado: R$ ${cost.toFixed(2)}\n\n⚠️ Valor sujeito a análise técnica.\n📞 Entre em contato para confirmar!`;
+    const text = `📋 *Orçamento de Produto*\n\n🔧 Produto: *${name}*\n💰 Valor estimado: R$ ${cost.toFixed(2)}\n\n📞 Entre em contato para confirmar!`;
     openWhatsApp(text);
   };
 
@@ -57,14 +57,14 @@ const SharePage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">Envie a lista completa de serviços disponíveis.</p>
+          <p className="text-sm text-muted-foreground mb-4">Envie a lista completa de produtos disponíveis.</p>
           <div className="flex gap-2">
             <Button onClick={shareAllServices} className="bg-success hover:bg-success/90 text-success-foreground">
-              <Send className="w-4 h-4 mr-2" /> Enviar todos os serviços
+              <Send className="w-4 h-4 mr-2" /> Enviar todos os produtos
             </Button>
             <Button variant="outline" onClick={() => {
               const lines = services.map((s) => `✅ ${s.name} - R$ ${Number(s.cost).toFixed(2)}`);
-              copyText(`🖥️ *Serviços de TI Disponíveis*\n\n${lines.join("\n")}\n\n📞 Entre em contato para mais informações!`);
+              copyText(`👗 *Produtos Disponíveis*\n\n${lines.join("\n")}\n\n📞 Entre em contato para mais informações!`);
             }}>
               <Copy className="w-4 h-4 mr-2" /> Copiar texto
             </Button>

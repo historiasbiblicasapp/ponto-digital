@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import logo from "@/assets/logo.jpg";
+import { ShoppingCart } from "lucide-react";
 
 const Login = () => {
   const { signIn } = useAuth();
@@ -38,8 +38,8 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <img src={logo} alt="Ponto Digital" className="mx-auto w-24 h-24 rounded-2xl object-contain" />
-          <CardTitle className="text-2xl font-bold">Ponto Digital</CardTitle>
+          <ShoppingCart className="mx-auto w-20 h-20 text-primary" />
+          <CardTitle className="text-2xl font-bold">LF Vendas</CardTitle>
           <p className="text-muted-foreground text-sm">{isSignUp ? "Crie sua conta de administrador" : "Faça login para acessar o painel"}</p>
         </CardHeader>
         <CardContent>

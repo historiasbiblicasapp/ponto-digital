@@ -79,9 +79,9 @@ const OrdersPage = () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       setOpen(false);
       setForm({ customer_id: "", service_id: "", description: "", total_cost: "", status: "pendente" });
-      toast.success("Atendimento criado!");
+      toast.success("Venda registrada!");
     },
-    onError: () => toast.error("Erro ao criar atendimento"),
+    onError: () => toast.error("Erro ao registrar venda"),
   });
 
   const updateStatusMutation = useMutation({
@@ -118,15 +118,15 @@ const OrdersPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Atendimentos</h1>
-          <p className="text-muted-foreground">Gerencie os atendimentos aos clientes</p>
+          <h1 className="text-2xl font-bold">Vendas</h1>
+          <p className="text-muted-foreground">Gerencie as vendas aos clientes</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 mr-2" /> Novo Atendimento</Button>
+            <Button><Plus className="w-4 h-4 mr-2" /> Nova Venda</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Novo Atendimento</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Nova Venda</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Cliente</Label>
@@ -138,9 +138,9 @@ const OrdersPage = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Serviço</Label>
+                <Label>Produto</Label>
                 <Select value={form.service_id} onValueChange={handleServiceChange}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o serviço" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Selecione o produto" /></SelectTrigger>
                   <SelectContent>
                     {services.map((s) => <SelectItem key={s.id} value={s.id}>{s.name} - R$ {Number(s.cost).toFixed(2)}</SelectItem>)}
                   </SelectContent>
@@ -148,13 +148,13 @@ const OrdersPage = () => {
               </div>
               <div className="space-y-2">
                 <Label>Descrição</Label>
-                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes do atendimento..." />
+                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes da venda..." />
               </div>
               <div className="space-y-2">
                 <Label>Valor Total (R$)</Label>
                 <Input type="number" step="0.01" min="0" value={form.total_cost} onChange={(e) => setForm({ ...form, total_cost: e.target.value })} />
               </div>
-              <Button type="submit" className="w-full" disabled={createMutation.isPending || !form.customer_id || !form.service_id}>Criar Atendimento</Button>
+              <Button type="submit" className="w-full" disabled={createMutation.isPending || !form.customer_id || !form.service_id}>Criar Venda</Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -168,7 +168,7 @@ const OrdersPage = () => {
                 <TableRow>
                   <TableHead>Data</TableHead>
                   <TableHead>Cliente</TableHead>
-                  <TableHead>Serviço</TableHead>
+                  <TableHead>Produto</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>Status</TableHead>
@@ -197,7 +197,7 @@ const OrdersPage = () => {
                   </TableRow>
                 ))}
                 {orders.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhum atendimento registrado</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhuma venda registrada</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
