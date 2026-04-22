@@ -87,39 +87,41 @@ const ReportsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold">Relatórios</h1>
         <p className="text-muted-foreground">Filtre vendas por data e exporte para PDF</p>
       </div>
 
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap items-end gap-4">
+        <CardContent className="pt-4 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Data Início</Label>
-              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <Label className="text-base">Data Início</Label>
+              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-12" />
             </div>
             <div className="space-y-2">
-              <Label>Data Fim</Label>
-              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              <Label className="text-base">Data Fim</Label>
+              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-12" />
             </div>
-            <Button onClick={handleFilter}><Search className="w-4 h-4 mr-2" /> Filtrar</Button>
-            <Button variant="outline" onClick={exportToPDF} disabled={orders.length === 0}>
-              <FileDown className="w-4 h-4 mr-2" /> Exportar PDF
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button onClick={handleFilter} className="h-12 touch-manipulation"><Search className="w-5 h-5 mr-2" /> Filtrar</Button>
+            <Button variant="outline" onClick={exportToPDF} disabled={orders.length === 0} className="h-12 touch-manipulation">
+              <FileDown className="w-5 h-5 mr-2" /> PDF
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total de Vendas</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold">{orders.length}</p></CardContent>
+          <CardHeader className="pb-2 p-3"><CardTitle className="text-xs text-muted-foreground">Total</CardTitle></CardHeader>
+          <CardContent className="p-3 pt-0"><p className="text-xl font-bold">{orders.length}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Concluídos</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold text-success">{completedOrders}</p></CardContent>
+          <CardHeader className="pb-2 p-3"><CardTitle className="text-xs text-muted-foreground">Concluídos</CardTitle></CardHeader>
+          <CardContent className="p-3 pt-0"><p className="text-xl font-bold text-success">{completedOrders}</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Receita Total</CardTitle></CardHeader>

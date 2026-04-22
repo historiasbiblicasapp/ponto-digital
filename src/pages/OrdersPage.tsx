@@ -115,46 +115,44 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Vendas</h1>
-          <p className="text-muted-foreground">Gerencie as vendas aos clientes</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold">Vendas</h1>
+        <p className="text-muted-foreground">Gerencie as vendas aos clientes</p>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 mr-2" /> Nova Venda</Button>
+            <Button className="w-full h-14 text-lg touch-manipulation"><Plus className="w-5 h-5 mr-2" /> Nova Venda</Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Nova Venda</DialogTitle></DialogHeader>
+          <DialogContent className="w-[95vw] max-w-md">
+            <DialogHeader><DialogTitle className="text-xl">Nova Venda</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>Cliente</Label>
+                <Label className="text-base">Cliente</Label>
                 <Select value={form.customer_id} onValueChange={(v) => setForm({ ...form, customer_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
+                  <SelectTrigger className="h-12"><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
                   <SelectContent>
                     {customers.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Produto</Label>
+                <Label className="text-base">Produto</Label>
                 <Select value={form.service_id} onValueChange={handleServiceChange}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o produto" /></SelectTrigger>
+                  <SelectTrigger className="h-12"><SelectValue placeholder="Selecione o produto" /></SelectTrigger>
                   <SelectContent>
                     {services.map((s) => <SelectItem key={s.id} value={s.id}>{s.name} - R$ {Number(s.cost).toFixed(2)}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Descrição</Label>
-                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes da venda..." />
+                <Label className="text-base">Descrição</Label>
+                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes da venda..." className="min-h-[80px]" />
               </div>
               <div className="space-y-2">
-                <Label>Valor Total (R$)</Label>
-                <Input type="number" step="0.01" min="0" value={form.total_cost} onChange={(e) => setForm({ ...form, total_cost: e.target.value })} />
+                <Label className="text-base">Valor Total (R$)</Label>
+                <Input type="number" step="0.01" min="0" value={form.total_cost} onChange={(e) => setForm({ ...form, total_cost: e.target.value })} className="h-12 text-lg" />
               </div>
-              <Button type="submit" className="w-full" disabled={createMutation.isPending || !form.customer_id || !form.service_id}>Criar Venda</Button>
+              <Button type="submit" className="w-full h-12 text-lg" disabled={createMutation.isPending || !form.customer_id || !form.service_id}>Criar Venda</Button>
             </form>
           </DialogContent>
         </Dialog>

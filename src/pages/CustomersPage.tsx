@@ -75,31 +75,29 @@ const CustomersPage = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Clientes</h1>
-          <p className="text-muted-foreground">Cadastro de clientes</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold">Clientes</h1>
+        <p className="text-muted-foreground">Cadastro de clientes</p>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { setEditing(null); setForm({ name: "", phone: "", observation: "" }); }}>
-              <Plus className="w-4 h-4 mr-2" /> Novo Cliente
+            <Button onClick={() => { setEditing(null); setForm({ name: "", phone: "", observation: "" }); }} className="w-full h-14 text-lg touch-manipulation">
+              <Plus className="w-5 h-5 mr-2" /> Novo Cliente
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{editing ? "Editar Cliente" : "Novo Cliente"}</DialogTitle></DialogHeader>
+          <DialogContent className="w-[95vw] max-w-md">
+            <DialogHeader><DialogTitle className="text-xl">{editing ? "Editar Cliente" : "Novo Cliente"}</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2"><Label>Nome</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
-              <div className="space-y-2"><Label>Telefone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-              <div className="space-y-2"><Label>Observação</Label><Textarea value={form.observation} onChange={(e) => setForm({ ...form, observation: e.target.value })} placeholder="Anotações sobre o cliente..." /></div>
-              <Button type="submit" className="w-full" disabled={upsertMutation.isPending}>Salvar</Button>
+              <div className="space-y-2"><Label className="text-base">Nome</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="h-12 text-base" /></div>
+              <div className="space-y-2"><Label className="text-base">Telefone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="h-12 text-base" /></div>
+              <div className="space-y-2"><Label className="text-base">Observação</Label><Textarea value={form.observation} onChange={(e) => setForm({ ...form, observation: e.target.value })} placeholder="Anotações sobre o cliente..." className="min-h-[80px]" /></div>
+              <Button type="submit" className="w-full h-12 text-lg" disabled={upsertMutation.isPending}>Salvar</Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <Input placeholder="Buscar cliente..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+      <Input placeholder="Buscar cliente..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 text-base" />
 
       {isLoading ? <p className="text-muted-foreground">Carregando...</p> : (
         <Card>

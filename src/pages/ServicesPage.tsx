@@ -91,34 +91,32 @@ const ServicesPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Produtos</h1>
-          <p className="text-muted-foreground">Gerencie seus produtos e preços</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold text-foreground">Produtos</h1>
+        <p className="text-muted-foreground">Gerencie seus produtos e preços</p>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Novo Produto</Button>
+            <Button onClick={openNew} className="w-full h-14 text-lg touch-manipulation"><Plus className="w-5 h-5 mr-2" /> Novo Produto</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[95vw] max-w-md">
             <DialogHeader>
-              <DialogTitle>{editing ? "Editar Produto" : "Novo Produto"}</DialogTitle>
+              <DialogTitle className="text-xl">{editing ? "Editar Produto" : "Novo Produto"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>Nome</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+                <Label className="text-base">Nome</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="h-12 text-base" />
               </div>
               <div className="space-y-2">
-                <Label>Descrição</Label>
-                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <Label className="text-base">Descrição</Label>
+                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="min-h-[80px]" />
               </div>
               <div className="space-y-2">
-                <Label>Custo (R$)</Label>
-                <Input type="number" step="0.01" min="0" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} required />
+                <Label className="text-base">Preço (R$)</Label>
+                <Input type="number" step="0.01" min="0" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} required className="h-12 text-lg" />
               </div>
-              <Button type="submit" className="w-full" disabled={upsertMutation.isPending}>Salvar</Button>
+              <Button type="submit" className="w-full h-12 text-lg" disabled={upsertMutation.isPending}>Salvar</Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -127,7 +125,7 @@ const ServicesPage = () => {
       {isLoading ? (
         <p className="text-muted-foreground">Carregando...</p>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
             <Card key={service.id} className={!service.active ? "opacity-50" : ""}>
               <CardHeader className="pb-3">
