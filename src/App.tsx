@@ -20,39 +20,42 @@ import AdminTenants from "@/pages/AdminTenants"
 
 const queryClient = new QueryClient()
 
-const LoadingScreen = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="text-center">
-      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-muted-foreground">Carregando...</p>
-    </div>
-  </div>
-)
-
 const AppRoutes = () => {
   const { user, loading } = useAuth()
 
-  if (loading) return <LoadingScreen />
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<MasterLogin />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    )
+  }
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-      <Route path="/admin" element={user ? <Navigate to="/" replace /> : <MasterLogin />} />
-      
       <Route path="/" element={
-        user ? (
-          user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
-        ) : <Navigate to="/login" replace />
+        user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
       } />
 
-      {user?.tenant_slug === "master" && (
+      {user.tenant_slug === "master" ? (
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<AdminDashboard />} />
           <Route path="/tenants" element={<AdminTenants />} />
         </Route>
-      )}
-
-      {user && user.tenant_slug !== "master" && (
+      ) : (
         <Route element={<AppLayout />}>
           <Route path="/vendas" element={<OrdersPage />} />
           <Route path="/services" element={<ServicesPage />} />
