@@ -56,8 +56,8 @@ const AppRoutes = () => {
       } />
 
       <Route element={<AdminLayout />}>
-        <Route path="/dashboard" element={user?.tenant_slug === "master" ? <AdminDashboard /> : <Navigate to="/login" />} />
-        <Route path="/tenants" element={user?.tenant_slug === "master" ? <AdminTenants /> : <Navigate to="/login" />} />
+        <Route path="/dashboard" element={<AdminDashboard />} />
+        <Route path="/tenants" element={<AdminTenants />} />
       </Route>
 
       <Route element={<AppLayout />}>

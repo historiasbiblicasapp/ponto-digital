@@ -17,11 +17,9 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ onNavigate }: AppSidebarProps) => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
   const location = useLocation();
 
   const handleSignOut = async () => {
-    await signOut();
     navigate("/login");
   };
 
