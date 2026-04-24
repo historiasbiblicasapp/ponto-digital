@@ -1,11 +1,17 @@
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { LayoutDashboard, Users, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 const AdminSidebar = () => {
+  const navigate = useNavigate()
   const { signOut } = useAuth()
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate("/admin")
+  }
 
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -40,7 +46,7 @@ const AdminSidebar = () => {
       <div className="p-3">
         <Button
           variant="ghost"
-          onClick={signOut}
+          onClick={handleSignOut}
           className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors w-full"
         >
           <LogOut className="w-5 h-5" />
