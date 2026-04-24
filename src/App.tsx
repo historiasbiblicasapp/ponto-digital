@@ -56,8 +56,8 @@ const AppRoutes = () => {
       } />
 
       <Route element={<AdminLayout />}>
-        <Route path="/dashboard" element={<AdminDashboard />} />
-        <Route path="/tenants" element={<AdminTenants />} />
+        <Route path="/dashboard" element={<div>TESTE DASHBOARD<AdminDashboard /></div>} />
+        <Route path="/tenants" element={<div>TESTE TENANTS<AdminTenants /></div>} />
       </Route>
 
       <Route element={<AppLayout />}>
