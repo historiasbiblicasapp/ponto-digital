@@ -27,7 +27,7 @@ const AdminTenants = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null)
   const [showUsers, setShowUsers] = useState(false)
 
-  const { data: tenants = [], isLoading } = useQuery({
+  const { data: tenants = [], isLoading, error } = useQuery({
     queryKey: ["admin-tenants"],
     queryFn: async () => {
       console.log("Fetching tenants...")
@@ -35,7 +35,8 @@ const AdminTenants = () => {
       console.log("Tenants response:", data, error)
       if (error) throw error
       return data
-    }
+    },
+    retry: 1
   })
 
   const { data: tenantUsers = [] } = useQuery({
@@ -157,6 +158,11 @@ const AdminTenants = () => {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          Erro ao carregar: {error.message}
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-800">Clientes / Lojas</h1>
@@ -213,6 +219,13 @@ const AdminTenants = () => {
 
       {isLoading ? (
         <p className="text-slate-500">Carregando...</p>
+      ) : tenants.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-slate-500 mb-4">Nenhum cliente encontrado</p>
+          <Button onClick={() => { console.log("tenants:", tenants); console.log("open:", open); }} className="bg-slate-800">
+            Debug
+          </Button>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {tenants.map((tenant) => (
