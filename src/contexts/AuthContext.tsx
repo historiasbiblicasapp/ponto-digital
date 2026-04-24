@@ -20,91 +20,121 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [customization, setCustomization] = useState<TenantCustomization | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const loadTenantData = async (tenantId: string) => {
-    try {
-      const { data: tenantData } = await supabase
-        .from("tenants")
-        .select("id, name, slug, primary_color")
-        .eq("id", tenantId)
-        .single()
+  useEffect(() => {
+    let mounted = true
 
-      if (tenantData) {
-        setTenant(tenantData)
-        document.title = tenantData.name || "LF Vendas"
-      }
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session?.user || !mounted) {
+          setLoading(false)
+          return
+        }
 
-      const { data: customizationData } = await supabase
-        .from("tenant_customizations")
-        .select("*")
-        .eq("tenant_id", tenantId)
-        .single()
+        const email = session.user.email || ""
+        console.log("Checking user:", email)
 
-      if (customizationData) {
-        setCustomization(customizationData)
-      }
-    } catch (err) {
-      console.error("Error loading tenant:", err)
-    }
-  }
+        const { data: tenantUser } = await supabase
+          .from("tenant_users")
+          .select("*")
+          .eq("email", email)
+          .single()
 
-  const processUser = async (session: any) => {
-    if (!session?.user) {
-      setUser(null)
-      setTenant(null)
-      setCustomization(null)
-      setLoading(false)
-      return
-    }
+        console.log("Tenant user found:", tenantUser)
 
-    const email = session.user.email || ""
-    
-    try {
-      const { data: tenantUser } = await supabase
-        .from("tenant_users")
-        .select("*")
-        .eq("email", email)
-        .single()
+        if (!tenantUser || !tenantUser.active) {
+          if (mounted) {
+            setUser(null)
+            setLoading(false)
+          }
+          return
+        }
 
-      if (tenantUser && tenantUser.active) {
         const { data: tenantData } = await supabase
           .from("tenants")
           .select("id, name, slug, primary_color")
           .eq("id", tenantUser.tenant_id)
           .single()
 
-        setUser({
-          id: session.user.id,
-          email,
-          role: tenantUser.role,
-          tenant_id: tenantUser.tenant_id,
-          tenant_name: tenantData?.name || null,
-          tenant_slug: tenantData?.slug || null,
-          customization: null
-        })
+        console.log("Tenant data:", tenantData)
 
-        if (tenantData) {
-          await loadTenantData(tenantData.id)
+        if (tenantData && mounted) {
+          setUser({
+            id: session.user.id,
+            email,
+            role: tenantUser.role,
+            tenant_id: tenantUser.tenant_id,
+            tenant_name: tenantData.name,
+            tenant_slug: tenantData.slug,
+            customization: null
+          })
+          setTenant(tenantData)
+          document.title = tenantData.name
         }
-      } else {
-        setUser(null)
-        await supabase.auth.signOut()
+      } catch (err) {
+        console.error("Auth check error:", err)
       }
-    } catch (err) {
-      console.error("Process user error:", err)
-      setUser(null)
+      
+      if (mounted) {
+        setLoading(false)
+      }
     }
-    
-    setLoading(false)
-  }
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => processUser(data.session))
+    checkAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      processUser(session)
+      if (!mounted) return
+      
+      if (!session) {
+        setUser(null)
+        setTenant(null)
+        setCustomization(null)
+        setLoading(false)
+        return
+      }
+
+      const email = session.user.email || ""
+      supabase
+        .from("tenant_users")
+        .select("*")
+        .eq("email", email)
+        .single()
+        .then(({ data: tenantUser }) => {
+          if (!tenantUser || !tenantUser.active || !mounted) {
+            setUser(null)
+            setLoading(false)
+            return
+          }
+
+          supabase
+            .from("tenants")
+            .select("id, name, slug, primary_color")
+            .eq("id", tenantUser.tenant_id)
+            .single()
+            .then(({ data: tenantData }) => {
+              if (tenantData && mounted) {
+                setUser({
+                  id: session.user.id,
+                  email,
+                  role: tenantUser.role,
+                  tenant_id: tenantUser.tenant_id,
+                  tenant_name: tenantData.name,
+                  tenant_slug: tenantData.slug,
+                  customization: null
+                })
+                setTenant(tenantData)
+                document.title = tenantData.name
+                setLoading(false)
+              }
+            })
+        })
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
@@ -126,10 +156,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const signOut = async () => {
+    setLoading(true)
     await supabase.auth.signOut()
     setUser(null)
     setTenant(null)
     setCustomization(null)
+    setLoading(false)
   }
 
   return (
