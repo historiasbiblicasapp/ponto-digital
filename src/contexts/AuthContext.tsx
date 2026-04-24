@@ -17,14 +17,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const createDeviceId = () => {
-  const stored = localStorage.getItem("device_id")
-  if (stored) return stored
-  const newId = "device_" + Math.random().toString(36).substring(2) + Date.now().toString(36)
-  localStorage.setItem("device_id", newId)
-  return newId
-}
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null)
   const [tenant, setTenant] = useState<{ id: string; name: string; slug: string; primary_color: string } | null>(null)
@@ -32,24 +24,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true)
 
   const loadTenantData = useCallback(async (tenantId: string) => {
-    const { data: tenantData } = await supabase
-      .from("tenants")
-      .select("id, name, slug, primary_color")
-      .eq("id", tenantId)
-      .single()
+    try {
+      const { data: tenantData } = await supabase
+        .from("tenants")
+        .select("id, name, slug, primary_color")
+        .eq("id", tenantId)
+        .single()
 
-    if (tenantData) {
-      setTenant(tenantData)
-    }
+      if (tenantData) {
+        setTenant(tenantData)
+      }
 
-    const { data: customizationData } = await supabase
-      .from("tenant_customizations")
-      .select("*")
-      .eq("tenant_id", tenantId)
-      .single()
+      const { data: customizationData } = await supabase
+        .from("tenant_customizations")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .single()
 
-    if (customizationData) {
-      setCustomization(customizationData)
+      if (customizationData) {
+        setCustomization(customizationData)
+      }
+    } catch (err) {
+      console.error("Error loading tenant data:", err)
     }
   }, [])
 
@@ -67,153 +63,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     })
   }, [])
 
-  const checkAndCreateSession = async (userId: string, tenantId: string | null, isMaster: boolean = false) => {
-    if (isMaster) return
-
-    const deviceId = createDeviceId()
-
-    const { data: existingSessions } = await supabase
-      .from("user_sessions")
-      .select("id, device_id")
-      .eq("user_id", userId)
-
-    const existingDevice = existingSessions?.find(s => s.device_id === deviceId)
-
-    if (existingDevice) {
-      await supabase
-        .from("user_sessions")
-        .update({ last_active: new Date().toISOString(), tenant_id: tenantId })
-        .eq("id", existingDevice.id)
-    } else {
-      if (tenantId) {
-        const { data: tenantData } = await supabase
-          .from("tenants")
-          .select("max_sessions")
-          .eq("id", tenantId)
-          .single()
-
-        if (tenantData) {
-          const activeCount = (existingSessions?.length || 0)
-          if (activeCount >= tenantData.max_sessions) {
-            throw new Error(`Limite de ${tenantData.max_sessions} dispositivos simultâneos atingido`)
-          }
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user) {
+          const email = session.user.email || ""
+          await processUser(session.user.id, email)
         }
-      }
-
-      const { error } = await supabase
-        .from("user_sessions")
-        .insert({ user_id: userId, device_id: deviceId, tenant_id: tenantId })
-
-      if (error && !error.message.includes("duplicate")) {
-        console.error("Session error:", error)
+      } catch (err) {
+        console.error("Auth init error:", err)
+      } finally {
+        setLoading(false)
       }
     }
-  }
 
-  const removeSession = async (userId: string) => {
-    const deviceId = localStorage.getItem("device_id")
-    if (!deviceId || !userId) return
-
-    await supabase
-      .from("user_sessions")
-      .delete()
-      .eq("user_id", userId)
-      .eq("device_id", deviceId)
-  }
-
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const email = session.user.email || ""
-
-        if (email === "master@lfvendas.com") {
-          setUser({
-            id: session.user.id,
-            email,
-            role: "master",
-            tenant_id: null,
-            tenant_name: null,
-            tenant_slug: null,
-            customization: null
-          })
-          await loadMasterData()
-        } else {
-          const { data: tenantUser } = await supabase
-            .from("tenant_users")
-            .select("*")
-            .eq("email", email)
-            .eq("active", true)
-            .single()
-
-          if (tenantUser) {
-            const { data: tenantData } = await supabase
-              .from("tenants")
-              .select("id, name, slug, primary_color")
-              .eq("id", tenantUser.tenant_id)
-              .single()
-
-            setUser({
-              id: session.user.id,
-              email,
-              role: tenantUser.role as "admin" | "user",
-              tenant_id: tenantUser.tenant_id,
-              tenant_name: tenantData?.name || null,
-              tenant_slug: tenantData?.slug || null,
-              customization: null
-            })
-            await loadTenantData(tenantUser.tenant_id)
-            await checkAndCreateSession(session.user.id, tenantUser.tenant_id)
-          } else {
-            await supabase.auth.signOut()
-          }
-        }
-      }
-      setLoading(false)
-    })
+    initializeAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         const email = session.user.email || ""
-
-        if (email === "master@lfvendas.com") {
-          setUser({
-            id: session.user.id,
-            email,
-            role: "master",
-            tenant_id: null,
-            tenant_name: null,
-            tenant_slug: null,
-            customization: null
-          })
-          await loadMasterData()
-        } else {
-          const { data: tenantUser } = await supabase
-            .from("tenant_users")
-            .select("*")
-            .eq("email", email)
-            .eq("active", true)
-            .single()
-
-          if (tenantUser) {
-            const { data: tenantData } = await supabase
-              .from("tenants")
-              .select("id, name, slug, primary_color")
-              .eq("id", tenantUser.tenant_id)
-              .single()
-
-            setUser({
-              id: session.user.id,
-              email,
-              role: tenantUser.role as "admin" | "user",
-              tenant_id: tenantUser.tenant_id,
-              tenant_name: tenantData?.name || null,
-              tenant_slug: tenantData?.slug || null,
-              customization: null
-            })
-            await loadTenantData(tenantUser.tenant_id)
-            await checkAndCreateSession(session.user.id, tenantUser.tenant_id)
-          }
-        }
+        await processUser(session.user.id, email)
       } else {
         setUser(null)
         setTenant(null)
@@ -222,13 +93,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     })
 
     return () => subscription.unsubscribe()
-  }, [loadTenantData, loadMasterData])
+  }, [])
 
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
+  const processUser = async (userId: string, email: string) => {
+    if (email === "master@lfvendas.com") {
+      setUser({
+        id: userId,
+        email,
+        role: "master",
+        tenant_id: null,
+        tenant_name: null,
+        tenant_slug: null,
+        customization: null
+      })
+      await loadMasterData()
+      return
+    }
 
-    if (data.session?.user) {
+    try {
       const { data: tenantUser } = await supabase
         .from("tenant_users")
         .select("*")
@@ -237,9 +119,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single()
 
       if (tenantUser) {
-        await checkAndCreateSession(data.session.user.id, tenantUser.tenant_id)
+        const { data: tenantData } = await supabase
+          .from("tenants")
+          .select("id, name, slug, primary_color")
+          .eq("id", tenantUser.tenant_id)
+          .single()
+
+        setUser({
+          id: userId,
+          email,
+          role: tenantUser.role as "admin" | "user",
+          tenant_id: tenantUser.tenant_id,
+          tenant_name: tenantData?.name || null,
+          tenant_slug: tenantData?.slug || null,
+          customization: null
+        })
+        await loadTenantData(tenantUser.tenant_id)
+      } else {
+        setUser(null)
       }
+    } catch (err) {
+      console.error("Process user error:", err)
+      setUser(null)
     }
+  }
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
   }
 
   const signInAsMaster = async (email: string, password: string) => {
@@ -248,9 +155,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const signOut = async () => {
-    if (user) {
-      await removeSession(user.id)
-    }
     await supabase.auth.signOut()
     setUser(null)
     setTenant(null)
@@ -259,14 +163,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const updateCustomization = async (data: Partial<TenantCustomization>) => {
     if (!user?.tenant_id) return
-
     const { error } = await supabase
       .from("tenant_customizations")
       .update({ ...data, updated_at: new Date().toISOString() })
       .eq("tenant_id", user.tenant_id)
-
     if (error) throw error
-
     await loadTenantData(user.tenant_id)
     toast.success("Personalização salva!")
   }
