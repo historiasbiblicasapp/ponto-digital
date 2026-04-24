@@ -11,8 +11,10 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Pencil, Trash2, Users } from "lucide-react"
 import { toast } from "sonner"
 import type { Tenant, TenantInsert } from "@/integrations/supabase/multi-tenant"
+import { useAuth } from "@/contexts/AuthContext"
 
 const AdminTenants = () => {
+  const { user } = useAuth()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Tenant | null>(null)
@@ -158,6 +160,9 @@ const AdminTenants = () => {
 
   return (
     <div className="space-y-6">
+      <pre className="p-4 bg-yellow-100 text-sm">
+        DEBUG: user={user ? "logged" : "null"} | tenants count={tenants?.length || 0} | error={error?.message || "none"}
+      </pre>
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
           Erro ao carregar: {error.message}
@@ -168,12 +173,9 @@ const AdminTenants = () => {
           <h1 className="text-3xl font-bold text-slate-800">Clientes / Lojas</h1>
           <p className="text-slate-600">Gerencie os clientes do sistema</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm} className="bg-slate-800 hover:bg-slate-700">
-              <Plus className="w-4 h-4 mr-2" /> Novo Cliente
-            </Button>
-          </DialogTrigger>
+        <button onClick={() => console.log("open set to true")} className="bg-slate-800 text-white px-4 py-2 rounded">
+          <Plus className="w-4 h-4 mr-2 inline" /> Novo Cliente (TEST)
+        </button>
           <DialogContent className="w-[95vw] max-w-md">
             <DialogHeader>
               <DialogTitle>{editing ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
