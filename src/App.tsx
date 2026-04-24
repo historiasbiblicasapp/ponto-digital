@@ -41,22 +41,26 @@ const AppRoutes = () => {
   }
 
   return (
-    <div>
-      <h1 style={{background: 'yellow', padding: '20px'}}>USER LOGADO: {user.email}</h1>
-      <Routes>
-        <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/login" element={<Navigate to="/vendas" replace />} />
-        
-        <Route path="/" element={
-          user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
-        } />
+    <Routes>
+      <Route path="/" element={
+        user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
+      } />
 
-        <Route path="/dashboard" element={<div><h1>DASHBOARD</h1></div>} />
+      <Route element={<AdminLayout />}>
+        <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="/tenants" element={<AdminTenants />} />
+      </Route>
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
+      <Route element={<AppLayout />}>
+        <Route path="/vendas" element={<OrdersPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/customers" element={<CustomersPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/share" element={<SharePage />} />
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   )
 }
 
