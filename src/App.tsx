@@ -17,7 +17,6 @@ import SharePage from "@/pages/SharePage"
 import NotFound from "@/pages/NotFound"
 import AdminDashboard from "@/pages/AdminDashboard"
 import AdminTenants from "@/pages/AdminTenants"
-import { ReactNode } from "react"
 
 const queryClient = new QueryClient()
 
@@ -37,18 +36,15 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Rotas públicas */}
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
       <Route path="/admin" element={user ? <Navigate to="/" replace /> : <MasterLogin />} />
       
-      {/* Redirecionamento inicial */}
       <Route path="/" element={
         user ? (
           user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
         ) : <Navigate to="/login" replace />
       } />
 
-      {/* Rotas Admin Master */}
       {user?.tenant_slug === "master" && (
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<AdminDashboard />} />
@@ -56,7 +52,6 @@ const AppRoutes = () => {
         </Route>
       )}
 
-      {/* Rotas Cliente/Loja */}
       {user && user.tenant_slug !== "master" && (
         <Route element={<AppLayout />}>
           <Route path="/vendas" element={<OrdersPage />} />

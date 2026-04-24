@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [tenant, setTenant] = useState<{ id: string; name: string; slug: string; primary_color: string } | null>(null)
   const [customization, setCustomization] = useState<TenantCustomization | null>(null)
   const [loading, setLoading] = useState(false)
+  const [initialized, setInitialized] = useState(false)
 
   const loadTenantData = async (tenantId: string) => {
     try {
@@ -54,6 +55,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao fazer login")
+      throw err
     } finally {
       setLoading(false)
     }
@@ -64,16 +68,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao fazer login")
+      throw err
     } finally {
       setLoading(false)
     }
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setTenant(null)
-    setCustomization(null)
+    setLoading(true)
+    try {
+      await supabase.auth.signOut()
+      setUser(null)
+      setTenant(null)
+      setCustomization(null)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const updateCustomization = async (data: Partial<TenantCustomization>) => {
@@ -86,55 +98,80 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     toast.success("Personalização salva!")
   }
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const email = session.user.email || ""
-        
-        try {
-          const { data: tenantUser } = await supabase
-            .from("tenant_users")
-            .select("*")
-            .eq("email", email)
-            .single()
+  const processSession = async (session: any) => {
+    if (!session?.user) {
+      setUser(null)
+      setTenant(null)
+      setCustomization(null)
+      setInitialized(true)
+      return
+    }
 
-          if (tenantUser && tenantUser.active) {
-            const { data: tenantData } = await supabase
-              .from("tenants")
-              .select("id, name, slug, primary_color")
-              .eq("id", tenantUser.tenant_id)
-              .single()
+    const email = session.user.email || ""
+    
+    try {
+      const { data: tenantUser, error } = await supabase
+        .from("tenant_users")
+        .select("*")
+        .eq("email", email)
+        .single()
 
-            setUser({
-              id: session.user.id,
-              email,
-              role: tenantUser.role,
-              tenant_id: tenantUser.tenant_id,
-              tenant_name: tenantData?.name || null,
-              tenant_slug: tenantData?.slug || null,
-              customization: null
-            })
-
-            if (tenantData) {
-              await loadTenantData(tenantData.id)
-            }
-          } else {
-            setUser(null)
-            await supabase.auth.signOut()
-          }
-        } catch (err) {
-          console.error("Auth error:", err)
-          setUser(null)
-        }
-      } else {
+      if (error || !tenantUser) {
+        console.log("User not found in tenant_users")
         setUser(null)
-        setTenant(null)
-        setCustomization(null)
+        setInitialized(true)
+        return
+      }
+
+      if (!tenantUser.active) {
+        toast.error("Usuário desativado")
+        setUser(null)
+        setInitialized(true)
+        return
+      }
+
+      const { data: tenantData } = await supabase
+        .from("tenants")
+        .select("id, name, slug, primary_color")
+        .eq("id", tenantUser.tenant_id)
+        .single()
+
+      setUser({
+        id: session.user.id,
+        email,
+        role: tenantUser.role,
+        tenant_id: tenantUser.tenant_id,
+        tenant_name: tenantData?.name || null,
+        tenant_slug: tenantData?.slug || null,
+        customization: null
+      })
+
+      if (tenantData) {
+        await loadTenantData(tenantData.id)
+      }
+    } catch (err) {
+      console.error("Process session error:", err)
+      setUser(null)
+    }
+    
+    setInitialized(true)
+  }
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => processSession(data.session))
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (initialized) {
+        processSession(session)
       }
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  if (!initialized) {
+    return null
+  }
 
   return (
     <AuthContext.Provider value={{
