@@ -30,7 +30,9 @@ const AdminTenants = () => {
   const { data: tenants = [], isLoading } = useQuery({
     queryKey: ["admin-tenants"],
     queryFn: async () => {
+      console.log("Fetching tenants...")
       const { data, error } = await supabase.from("tenants").select("*").order("created_at", { ascending: false })
+      console.log("Tenants response:", data, error)
       if (error) throw error
       return data
     }

@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Wrench, Users, ClipboardList, BarChart3, LogOut, Share2, ShoppingBag, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,8 +16,14 @@ interface AppSidebarProps {
 }
 
 const AppSidebar = ({ onNavigate }: AppSidebarProps) => {
+  const navigate = useNavigate();
   const { signOut } = useAuth();
   const location = useLocation();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <aside className="w-64 min-h-screen bg-primary flex flex-col">
@@ -47,7 +53,7 @@ const AppSidebar = ({ onNavigate }: AppSidebarProps) => {
 
       <div className="p-3">
         <button
-          onClick={signOut}
+          onClick={handleSignOut}
           className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground transition-colors w-full"
         >
           <LogOut className="w-5 h-5" />
