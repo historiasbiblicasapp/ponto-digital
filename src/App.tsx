@@ -32,6 +32,8 @@ const LoadingScreen = () => (
 const AppRoutes = () => {
   const { user, loading } = useAuth()
 
+  console.log("AppRoutes - user:", user, "loading:", loading)
+
   if (loading) {
     return <LoadingScreen />
   }
