@@ -9,6 +9,7 @@ const AdminSidebar = () => {
   const { signOut } = useAuth()
 
   const handleSignOut = async () => {
+    await signOut()
     navigate("/admin")
   }
 
