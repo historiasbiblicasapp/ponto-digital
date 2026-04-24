@@ -47,7 +47,14 @@ const Login = () => {
         }
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
-          password
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: {
+              tenant_id: selectedTenant.id,
+              tenant_name: selectedTenant.name
+            }
+          }
         })
         if (authError) throw authError
 

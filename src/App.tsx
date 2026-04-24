@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 import { Toaster as Sonner } from "@/components/ui/sonner"
 import { Toaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { AuthProvider, useAuth } from "@/contexts/AuthContext"
+import { AuthProvider } from "@/contexts/AuthContext"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import AppLayout from "@/components/AppLayout"
 import AdminLayout from "@/components/AdminLayout"
@@ -17,20 +17,24 @@ import SharePage from "@/pages/SharePage"
 import NotFound from "@/pages/NotFound"
 import AdminDashboard from "@/pages/AdminDashboard"
 import AdminTenants from "@/pages/AdminTenants"
+import { useAuth } from "@/contexts/AuthContext"
+import { ReactNode } from "react"
 
 const queryClient = new QueryClient()
 
-const ProtectedRoutes = () => {
+const LoadingScreen = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center">
+      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-muted-foreground">Carregando...</p>
+    </div>
+  </div>
+)
+
+const ProtectedRoutes = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Carregando...</p>
-      </div>
-    )
-  }
-
+  if (loading) return <LoadingScreen />
   if (!user) return <Navigate to="/login" replace />
 
   if (user.role === "master") {
@@ -59,28 +63,27 @@ const ProtectedRoutes = () => {
   )
 }
 
-const AppRoutes = () => {
+const PublicRoutes = () => {
   const { user, loading } = useAuth()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Carregando...</p>
-      </div>
-    )
-  }
-
-  if (user) {
-    return <Navigate to="/" replace />
-  }
+  if (loading) return <LoadingScreen />
+  if (user) return <Navigate to="/" replace />
 
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/admin" element={<MasterLogin />} />
-      <Route path="/*" element={<ProtectedRoutes />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )
+}
+
+const AppContent = () => {
+  const { user, loading } = useAuth()
+
+  if (loading) return <LoadingScreen />
+
+  return user ? <ProtectedRoutes /> : <PublicRoutes />
 }
 
 const App = () => (
@@ -91,7 +94,7 @@ const App = () => (
       <AuthProvider>
         <ThemeProvider>
           <BrowserRouter>
-            <AppRoutes />
+            <AppContent />
           </BrowserRouter>
         </ThemeProvider>
       </AuthProvider>
