@@ -4,8 +4,8 @@ import { Wrench, Users, ClipboardList, BarChart3, LogOut, Share2, ShoppingBag, S
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { to: "/", icon: ClipboardList, label: "Vendas" },
-  { to: "/services", icon: ShoppingBag, label: "Produtos" },
+  { to: "/vendas", icon: ClipboardList, label: "Vendas" },
+  { to: "/services", icon: ShoppingCart, label: "Produtos" },
   { to: "/customers", icon: Users, label: "Clientes" },
   { to: "/reports", icon: BarChart3, label: "Relatórios" },
   { to: "/share", icon: Share2, label: "Compartilhar" },

@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 import { Toaster as Sonner } from "@/components/ui/sonner"
 import { Toaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { AuthProvider } from "@/contexts/AuthContext"
+import { AuthProvider, useAuth } from "@/contexts/AuthContext"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import AppLayout from "@/components/AppLayout"
 import AdminLayout from "@/components/AdminLayout"
@@ -17,7 +17,6 @@ import SharePage from "@/pages/SharePage"
 import NotFound from "@/pages/NotFound"
 import AdminDashboard from "@/pages/AdminDashboard"
 import AdminTenants from "@/pages/AdminTenants"
-import { useAuth } from "@/contexts/AuthContext"
 import { ReactNode } from "react"
 
 const queryClient = new QueryClient()
@@ -31,59 +30,46 @@ const LoadingScreen = () => (
   </div>
 )
 
-const ProtectedRoutes = ({ children }: { children: ReactNode }) => {
+const AppRoutes = () => {
   const { user, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
-  if (!user) return <Navigate to="/login" replace />
-
-  if (user?.tenant_slug === "master") {
-    return (
-      <Routes>
-        <Route element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="tenants" element={<AdminTenants />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    )
-  }
 
   return (
     <Routes>
-      <Route element={<AppLayout />}>
-        <Route index element={<OrdersPage />} />
-        <Route path="services" element={<ServicesPage />} />
-        <Route path="customers" element={<CustomersPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="share" element={<SharePage />} />
-      </Route>
+      {/* Rotas públicas */}
+      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/admin" element={user ? <Navigate to="/" replace /> : <MasterLogin />} />
+      
+      {/* Redirecionamento inicial */}
+      <Route path="/" element={
+        user ? (
+          user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
+        ) : <Navigate to="/login" replace />
+      } />
+
+      {/* Rotas Admin Master */}
+      {user?.tenant_slug === "master" && (
+        <Route element={<AdminLayout />}>
+          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/tenants" element={<AdminTenants />} />
+        </Route>
+      )}
+
+      {/* Rotas Cliente/Loja */}
+      {user && user.tenant_slug !== "master" && (
+        <Route element={<AppLayout />}>
+          <Route path="/vendas" element={<OrdersPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/share" element={<SharePage />} />
+        </Route>
+      )}
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
-}
-
-const PublicRoutes = () => {
-  const { user, loading } = useAuth()
-
-  if (loading) return <LoadingScreen />
-  if (user) return <Navigate to="/" replace />
-
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/admin" element={<MasterLogin />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
-  )
-}
-
-const AppContent = () => {
-  const { user, loading } = useAuth()
-
-  if (loading) return <LoadingScreen />
-
-  return user ? <ProtectedRoutes /> : <PublicRoutes />
 }
 
 const App = () => (
@@ -94,7 +80,7 @@ const App = () => (
       <AuthProvider>
         <ThemeProvider>
           <BrowserRouter>
-            <AppContent />
+            <AppRoutes />
           </BrowserRouter>
         </ThemeProvider>
       </AuthProvider>
