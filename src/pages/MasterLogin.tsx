@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,6 +9,7 @@ import { toast } from "sonner"
 import { Shield } from "lucide-react"
 
 const MasterLogin = () => {
+  const navigate = useNavigate()
   const { signInAsMaster } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -19,6 +21,7 @@ const MasterLogin = () => {
     try {
       await signInAsMaster(email, password)
       toast.success("Login realizado com sucesso!")
+      setTimeout(() => navigate("/dashboard"), 100)
     } catch (err: any) {
       toast.error(err.message || "Erro ao autenticar")
     } finally {

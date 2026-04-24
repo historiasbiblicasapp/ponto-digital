@@ -20,50 +20,51 @@ import AdminTenants from "@/pages/AdminTenants"
 
 const queryClient = new QueryClient()
 
+const LoadingScreen = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center">
+      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-muted-foreground">Carregando...</p>
+    </div>
+  </div>
+)
+
 const AppRoutes = () => {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Carregando...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<MasterLogin />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    )
+    return <LoadingScreen />
   }
 
   return (
     <Routes>
+      <Route path="/admin" element={
+        user?.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <MasterLogin />
+      } />
+      <Route path="/login" element={
+        user ? (
+          user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
+        ) : <Login />
+      } />
+      
       <Route path="/" element={
-        user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
+        user ? (
+          user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
+        ) : <Navigate to="/admin" replace />
       } />
 
-      {user.tenant_slug === "master" ? (
-        <Route element={<AdminLayout />}>
-          <Route path="/dashboard" element={<AdminDashboard />} />
-          <Route path="/tenants" element={<AdminTenants />} />
-        </Route>
-      ) : (
-        <Route element={<AppLayout />}>
-          <Route path="/vendas" element={<OrdersPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/customers" element={<CustomersPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/share" element={<SharePage />} />
-        </Route>
-      )}
+      <Route element={<AdminLayout />}>
+        <Route path="/dashboard" element={user?.tenant_slug === "master" ? <AdminDashboard /> : <Navigate to="/login" />} />
+        <Route path="/tenants" element={user?.tenant_slug === "master" ? <AdminTenants /> : <Navigate to="/login" />} />
+      </Route>
+
+      <Route element={<AppLayout />}>
+        <Route path="/vendas" element={user ? <OrdersPage /> : <Navigate to="/login" />} />
+        <Route path="/services" element={user ? <ServicesPage /> : <Navigate to="/login" />} />
+        <Route path="/customers" element={user ? <CustomersPage /> : <Navigate to="/login" />} />
+        <Route path="/reports" element={user ? <ReportsPage /> : <Navigate to="/login" />} />
+        <Route path="/share" element={user ? <SharePage /> : <Navigate to="/login" />} />
+      </Route>
 
       <Route path="*" element={<NotFound />} />
     </Routes>

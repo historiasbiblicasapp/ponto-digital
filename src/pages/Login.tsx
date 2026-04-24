@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -10,6 +11,7 @@ import { ShoppingCart, ChevronDown } from "lucide-react"
 import type { Tenant } from "@/integrations/supabase/multi-tenant"
 
 const Login = () => {
+  const navigate = useNavigate()
   const { signIn } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -69,9 +71,11 @@ const Login = () => {
 
         toast.success("Conta criada com sucesso!")
         setIsSignUp(false)
+        setTimeout(() => navigate("/vendas"), 100)
       } else {
         await signIn(email, password)
         toast.success("Login realizado com sucesso!")
+        setTimeout(() => navigate("/vendas"), 100)
       }
     } catch (err: any) {
       toast.error(err.message || "Erro ao autenticar")
