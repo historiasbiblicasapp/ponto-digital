@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react"
-import { useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 import type { AppUser, TenantCustomization } from "@/integrations/supabase/multi-tenant"
 
@@ -16,7 +15,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const navigate = useNavigate()
   const [user, setUser] = useState<AppUser | null>(null)
   const [tenant, setTenant] = useState<{ id: string; name: string; slug: string; primary_color: string } | null>(null)
   const [customization, setCustomization] = useState<TenantCustomization | null>(null)
@@ -160,12 +158,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     setLoading(true)
     await supabase.auth.signOut()
-    const wasMaster = user?.tenant_slug === "master"
     setUser(null)
     setTenant(null)
     setCustomization(null)
     setLoading(false)
-    navigate(wasMaster ? "/admin" : "/login")
   }
 
   return (
