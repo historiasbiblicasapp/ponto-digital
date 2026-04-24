@@ -140,19 +140,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           const { data: tenantUser } = await supabase
             .from("tenant_users")
-            .select("*, tenants(id, name, slug, primary_color)")
+            .select("*")
             .eq("email", email)
             .eq("active", true)
             .single()
 
           if (tenantUser) {
+            const { data: tenantData } = await supabase
+              .from("tenants")
+              .select("id, name, slug, primary_color")
+              .eq("id", tenantUser.tenant_id)
+              .single()
+
             setUser({
               id: session.user.id,
               email,
               role: tenantUser.role as "admin" | "user",
               tenant_id: tenantUser.tenant_id,
-              tenant_name: (tenantUser.tenants as any)?.name || null,
-              tenant_slug: (tenantUser.tenants as any)?.slug || null,
+              tenant_name: tenantData?.name || null,
+              tenant_slug: tenantData?.slug || null,
               customization: null
             })
             await loadTenantData(tenantUser.tenant_id)
@@ -183,19 +189,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           const { data: tenantUser } = await supabase
             .from("tenant_users")
-            .select("*, tenants(id, name, slug, primary_color)")
+            .select("*")
             .eq("email", email)
             .eq("active", true)
             .single()
 
           if (tenantUser) {
+            const { data: tenantData } = await supabase
+              .from("tenants")
+              .select("id, name, slug, primary_color")
+              .eq("id", tenantUser.tenant_id)
+              .single()
+
             setUser({
               id: session.user.id,
               email,
               role: tenantUser.role as "admin" | "user",
               tenant_id: tenantUser.tenant_id,
-              tenant_name: (tenantUser.tenants as any)?.name || null,
-              tenant_slug: (tenantUser.tenants as any)?.slug || null,
+              tenant_name: tenantData?.name || null,
+              tenant_slug: tenantData?.slug || null,
               customization: null
             })
             await loadTenantData(tenantUser.tenant_id)
@@ -219,7 +231,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data.session?.user) {
       const { data: tenantUser } = await supabase
         .from("tenant_users")
-        .select("*, tenants(id, name, slug, primary_color)")
+        .select("*")
         .eq("email", email)
         .eq("active", true)
         .single()
