@@ -17,6 +17,7 @@ import SharePage from "@/pages/SharePage"
 import NotFound from "@/pages/NotFound"
 import AdminDashboard from "@/pages/AdminDashboard"
 import AdminTenants from "@/pages/AdminTenants"
+import ChatPage from "@/pages/ChatPage"
 
 const queryClient = new QueryClient()
 
@@ -57,6 +58,7 @@ const AppRoutes = () => {
         <Route path="/customers" element={<CustomersPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/share" element={<SharePage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

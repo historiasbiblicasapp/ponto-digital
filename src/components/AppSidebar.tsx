@@ -1,12 +1,13 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Wrench, Users, ClipboardList, BarChart3, LogOut, Share2, ShoppingBag, ShoppingCart } from "lucide-react";
+import { MessageSquare, Wrench, Users, ClipboardList, BarChart3, LogOut, Share2, ShoppingBag, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/vendas", icon: ClipboardList, label: "Vendas" },
   { to: "/services", icon: ShoppingCart, label: "Produtos" },
   { to: "/customers", icon: Users, label: "Clientes" },
+  { to: "/chat", icon: MessageSquare, label: "Chat" },
   { to: "/reports", icon: BarChart3, label: "Relatórios" },
   { to: "/share", icon: Share2, label: "Compartilhar" },
 ];
