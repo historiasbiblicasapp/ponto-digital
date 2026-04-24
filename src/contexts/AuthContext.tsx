@@ -96,20 +96,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const processUser = async (userId: string, email: string) => {
-    if (email === "master@lfvendas.com") {
-      setUser({
-        id: userId,
-        email,
-        role: "master",
-        tenant_id: null,
-        tenant_name: null,
-        tenant_slug: null,
-        customization: null
-      })
-      await loadMasterData()
-      return
-    }
-
     try {
       const { data: tenantUser } = await supabase
         .from("tenant_users")

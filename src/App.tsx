@@ -37,7 +37,7 @@ const ProtectedRoutes = ({ children }: { children: ReactNode }) => {
   if (loading) return <LoadingScreen />
   if (!user) return <Navigate to="/login" replace />
 
-  if (user.role === "master") {
+  if (user?.tenant_slug === "master") {
     return (
       <Routes>
         <Route element={<AdminLayout />}>
