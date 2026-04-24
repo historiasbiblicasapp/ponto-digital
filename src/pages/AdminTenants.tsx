@@ -173,55 +173,17 @@ const AdminTenants = () => {
           <h1 className="text-3xl font-bold text-slate-800">Clientes / Lojas</h1>
           <p className="text-slate-600">Gerencie os clientes do sistema</p>
         </div>
-        <button onClick={() => console.log("open set to true")} className="bg-slate-800 text-white px-4 py-2 rounded">
-          <Plus className="w-4 h-4 mr-2 inline" /> Novo Cliente (TEST)
-        </button>
-          <DialogContent className="w-[95vw] max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editing ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Nome da Loja</Label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value, slug: generateSlug(e.target.value) })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Slug (URL)</Label>
-                <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} required />
-              </div>
-              <div className="space-y-2">
-                <Label>Limite de Acessos</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={999}
-                  value={form.max_sessions}
-                  onChange={(e) => setForm({ ...form, max_sessions: parseInt(e.target.value) || 2 })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Cor Principal</Label>
-                <div className="flex gap-3">
-                  <Input type="color" value={form.primary_color} onChange={(e) => setForm({ ...form, primary_color: e.target.value })} className="w-16 h-12" />
-                  <Input type="text" value={form.primary_color} onChange={(e) => setForm({ ...form, primary_color: e.target.value })} className="flex-1" />
-                </div>
-              </div>
-              <Button type="submit" className="w-full" disabled={createTenantMutation.isPending || updateTenantMutation.isPending}>
-                {editing ? "Salvar" : "Criar Cliente"}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div>
+          <p className="text-red-600">DEBUG: render test text</p>
+          <button onClick={() => console.log("clicked")} className="bg-blue-600 text-white px-4 py-2 rounded">
+            NOVO CLIENTE BOTAO
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
         <p className="text-slate-500">Carregando...</p>
-      ) : tenants.length === 0 ? (
+      ) : tenants?.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-slate-500 mb-4">Nenhum cliente encontrado</p>
           <Button onClick={() => { console.log("tenants:", tenants); console.log("open:", open); }} className="bg-slate-800">
