@@ -36,27 +36,23 @@ const AppRoutes = () => {
     return <LoadingScreen />
   }
 
+  if (!user) {
+    return <MasterLogin />
+  }
+
   return (
     <div>
-      <h1 style={{background: 'yellow', padding: '20px'}}>APP ROUTES LOADED</h1>
+      <h1 style={{background: 'yellow', padding: '20px'}}>USER LOGADO: {user.email}</h1>
       <Routes>
-        <Route path="/admin" element={
-          user?.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <MasterLogin />
-        } />
-        <Route path="/login" element={
-          user ? (
-            user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
-          ) : <Login />
-        } />
+        <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<Navigate to="/vendas" replace />} />
         
         <Route path="/" element={
-          user ? (
-            user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
-          ) : <Navigate to="/admin" replace />
+          user.tenant_slug === "master" ? <Navigate to="/dashboard" replace /> : <Navigate to="/vendas" replace />
         } />
 
-        <Route path="/dashboard" element={<div><h1>TESTE DASHBOARD</h1></div>} />
-        <Route path="/tenants" element={<div><h1>TESTE TENANTS</h1><AdminTenants /></div>} />
+        <Route path="/dashboard" element={<div><h1>DASHBOARD</h1></div>} />
+        <Route path="/tenants" element={<AdminTenants />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
