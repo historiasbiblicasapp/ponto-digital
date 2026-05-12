@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS public.registros_ponto (
   dispositivo_id UUID REFERENCES public.dispositivos(id) ON DELETE SET NULL,
   tipo TEXT NOT NULL CHECK (tipo IN ('entrada', 'saida_almoco', 'retorno_almoco', 'saida', 'extra_inicio', 'extra_fim')),
   data_hora TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  data DATE GENERATED ALWAYS AS (data_hora::date) STORED,
+  data DATE NOT NULL DEFAULT CURRENT_DATE,
   latitude TEXT,
   longitude TEXT,
   endereco TEXT,
