@@ -4,20 +4,20 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 15%;
+    --background: 0 0% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 222 47% 11%;
 
     --primary: 142 76% 36%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96%;
-    --secondary-foreground: 215 25% 25%;
+    --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
@@ -40,36 +40,45 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --sidebar-background: 142 76% 36%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 142 76% 36%;
-    --sidebar-accent: 142 76% 46%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 142 76% 46%;
-    --sidebar-ring: 0 0% 100%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 142 76% 36%;
   }
 
   .dark {
     --background: 222 47% 8%;
     --foreground: 210 40% 98%;
+
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
+
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
+
     --primary: 142 76% 46%;
     --primary-foreground: 0 0% 100%;
+
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
+
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
+
     --accent: 142 76% 46%;
     --accent-foreground: 0 0% 100%;
+
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
+
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 142 76% 46%;
+
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 142 76% 46%;
@@ -88,13 +97,12 @@
 
   html {
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   input, textarea, select, button {
@@ -106,12 +114,32 @@
   .glass-card {
     @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm;
   }
-  
+
   .touch-manipulation {
     touch-action: manipulation;
   }
-  
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+
+  .kiosk-fullscreen {
+    @apply fixed inset-0 z-50 bg-background;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media print {
+  @page {
+    margin: 1cm;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }

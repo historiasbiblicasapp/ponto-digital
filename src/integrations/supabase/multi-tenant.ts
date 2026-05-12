@@ -7,8 +7,6 @@ export type TenantUpdate = Database['public']['Tables']['tenants']['Update']
 export type TenantUser = Database['public']['Tables']['tenant_users']['Row']
 export type TenantUserInsert = Database['public']['Tables']['tenant_users']['Insert']
 
-export type TenantCustomization = Database['public']['Tables']['tenant_customizations']['Row']
-
 export interface AppUser {
   id: string
   email: string
@@ -16,13 +14,13 @@ export interface AppUser {
   tenant_id: string | null
   tenant_name: string | null
   tenant_slug: string | null
-  customization: TenantCustomization | null
+  funcionario: {
+    id: string
+    nome: string
+    matricula: string
+    cargo: string | null
+    setor: string | null
+    foto_url: string | null
+    filial_id: string | null
+  } | null
 }
-
-export const Constants = {
-  public: {
-    Enums: {
-      order_status: ['pendente', 'em_andamento', 'concluido', 'cancelado'],
-    },
-  },
-} as const
