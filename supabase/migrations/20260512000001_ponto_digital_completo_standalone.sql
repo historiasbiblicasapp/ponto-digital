@@ -14,15 +14,44 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================
--- 2. SCHEMA
+-- 2. LIMPEZA - Remove tabelas existentes para recriar com schema correto
+-- ============================================================
+DROP TABLE IF EXISTS
+  public.ferias,
+  public.notificacoes,
+  public.auditoria,
+  public.ajustes,
+  public.banco_horas,
+  public.funcionario_escala,
+  public.escalas,
+  public.registros_ponto,
+  public.dispositivos,
+  public.funcionarios,
+  public.filiais,
+  public.tenant_customizations,
+  public.conversations,
+  public.messages,
+  public.tenant_users,
+  public.services,
+  public.customers,
+  public.service_orders,
+  public.user_sessions,
+  public.tenants
+CASCADE;
+
+-- Remove old enum if exists
+DROP TYPE IF EXISTS public.order_status CASCADE;
+
+-- ============================================================
+-- 3. SCHEMA
 -- ============================================================
 SET search_path TO public;
 
 -- ============================================================
--- 3. TABELAS BASE (Multi-tenant)
+-- 4. TABELAS BASE (Multi-tenant)
 -- ============================================================
 
--- 3.1. EMPRESAS / TENANTS
+-- 4.1. EMPRESAS / TENANTS
 CREATE TABLE IF NOT EXISTS public.tenants (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
