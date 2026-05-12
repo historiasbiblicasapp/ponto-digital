@@ -1,1 +1,0 @@
-ALTER TABLE public.customers ADD COLUMN observation text;
