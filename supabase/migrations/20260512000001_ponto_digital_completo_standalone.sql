@@ -345,9 +345,23 @@ CREATE POLICY "Funcionarios do mesmo tenant" ON public.funcionarios
     auth_user_id = auth.uid()
   );
 
-DROP POLICY IF EXISTS "Admin gerencia funcionarios" ON public.funcionarios;
-CREATE POLICY "Admin gerencia funcionarios" ON public.funcionarios
-  FOR INSERT OR UPDATE OR DELETE TO authenticated
+DROP POLICY IF EXISTS "Admin insere funcionarios" ON public.funcionarios;
+CREATE POLICY "Admin insere funcionarios" ON public.funcionarios
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    empresa_id IN (SELECT tenant_id FROM public.tenant_users WHERE email = auth.email() AND role IN ('admin', 'master'))
+  );
+
+DROP POLICY IF EXISTS "Admin atualiza funcionarios" ON public.funcionarios;
+CREATE POLICY "Admin atualiza funcionarios" ON public.funcionarios
+  FOR UPDATE TO authenticated
+  USING (
+    empresa_id IN (SELECT tenant_id FROM public.tenant_users WHERE email = auth.email() AND role IN ('admin', 'master'))
+  );
+
+DROP POLICY IF EXISTS "Admin deleta funcionarios" ON public.funcionarios;
+CREATE POLICY "Admin deleta funcionarios" ON public.funcionarios
+  FOR DELETE TO authenticated
   USING (
     empresa_id IN (SELECT tenant_id FROM public.tenant_users WHERE email = auth.email() AND role IN ('admin', 'master'))
   );
