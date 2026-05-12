@@ -561,6 +561,91 @@ INSERT INTO public.tenants (name, slug, nome_fantasia, plano, limite_funcionario
 VALUES ('Admin Master', 'master', 'Ponto Digital BM', 'corporativo', 999999, true)
 ON CONFLICT (slug) DO NOTHING;
 
+-- 9.2. Criar Tenant de Exemplo
+INSERT INTO public.tenants (name, slug, nome_fantasia, cnpj, plano, limite_funcionarios, active)
+VALUES ('Empresa Exemplo Ltda', 'empresa-exemplo', 'Empresa Exemplo', '00.000.000/0001-00', 'profissional', 50, true)
+ON CONFLICT (slug) DO NOTHING;
+
+-- 9.3. Criar Usuário Master (acesso total ao sistema)
+-- Email: master@pontodigital.com
+-- Senha: Master@2026
+DO $$
+DECLARE
+  v_instance_id UUID;
+  v_master_tenant_id UUID;
+  v_example_tenant_id UUID;
+  v_master_user_id UUID;
+  v_example_user_id UUID;
+BEGIN
+  -- Get instance ID
+  SELECT id INTO v_instance_id FROM auth.instances ORDER BY created_at LIMIT 1;
+  IF v_instance_id IS NULL THEN
+    v_instance_id := '00000000-0000-0000-0000-000000000000';
+  END IF;
+
+  -- Get tenant IDs
+  SELECT id INTO v_master_tenant_id FROM public.tenants WHERE slug = 'master';
+  SELECT id INTO v_example_tenant_id FROM public.tenants WHERE slug = 'empresa-exemplo';
+
+  -- Criar usuário master no auth
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, confirmation_token, confirmation_sent_at,
+    recovery_token, raw_app_meta_data, raw_user_meta_data,
+    created_at, updated_at, is_super_admin
+  ) VALUES (
+    v_instance_id, gen_random_uuid(), 'authenticated', 'authenticated',
+    'master@pontodigital.com',
+    crypt('Master@2026', gen_salt('bf')),
+    NOW(), '', NOW(), '',
+    '{"provider":"email","providers":["email"]}',
+    '{"role":"master"}',
+    NOW(), NOW(), true
+  ) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+  RETURNING id INTO v_master_user_id;
+
+  -- Vincular master ao tenant master
+  INSERT INTO public.tenant_users (tenant_id, email, role, active)
+  VALUES (v_master_tenant_id, 'master@pontodigital.com', 'master', true)
+  ON CONFLICT (tenant_id, email) DO NOTHING;
+
+  -- Criar usuário admin da empresa exemplo
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, confirmation_token, confirmation_sent_at,
+    recovery_token, raw_app_meta_data, raw_user_meta_data,
+    created_at, updated_at
+  ) VALUES (
+    v_instance_id, gen_random_uuid(), 'authenticated', 'authenticated',
+    'admin@exemplo.com',
+    crypt('Admin@2026', gen_salt('bf')),
+    NOW(), '', NOW(), '',
+    '{"provider":"email","providers":["email"]}',
+    '{"role":"admin"}',
+    NOW(), NOW()
+  ) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+  RETURNING id INTO v_example_user_id;
+
+  -- Vincular admin à empresa exemplo
+  INSERT INTO public.tenant_users (tenant_id, email, role, active)
+  VALUES (v_example_tenant_id, 'admin@exemplo.com', 'admin', true)
+  ON CONFLICT (tenant_id, email) DO NOTHING;
+
+  -- Criar funcionário de exemplo vinculado ao admin
+  INSERT INTO public.funcionarios (empresa_id, matricula, nome, email, cargo, setor, pin, ativo)
+  VALUES (v_example_tenant_id, '001', 'Administrador', 'admin@exemplo.com', 'Administrador RH', 'Administrativo', '1234', true)
+  ON CONFLICT (empresa_id, matricula) DO NOTHING;
+
+  INSERT INTO public.funcionarios (empresa_id, matricula, nome, email, cargo, setor, pin, ativo)
+  VALUES (v_example_tenant_id, '002', 'Funcionário Exemplo', 'funcionario@exemplo.com', 'Auxiliar', 'Produção', '5678', true)
+  ON CONFLICT (empresa_id, matricula) DO NOTHING;
+
+  -- Criar escala exemplo
+  INSERT INTO public.escalas (empresa_id, nome, tipo, hora_entrada, hora_saida_almoco, hora_retorno_almoco, hora_saida, carga_horaria_diaria)
+  VALUES (v_example_tenant_id, 'Administrativo', '5x2', '08:00', '12:00', '13:00', '18:00', 8)
+  ON CONFLICT DO NOTHING;
+END $$;
+
 -- ============================================================
 -- 10. PERMISSÕES
 -- ============================================================
