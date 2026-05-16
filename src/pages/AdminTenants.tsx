@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -10,10 +10,8 @@ import { Plus, Pencil, Users } from "lucide-react"
 import { toast } from "sonner"
 import type { Tenant, TenantInsert } from "@/integrations/supabase/multi-tenant"
 
+// Nota: esta página não está roteada atualmente. Usar MasterTenants.tsx para gestão de empresas.
 const AdminTenants = () => {
-  useEffect(() => {
-    alert("AdminTenants rendered!")
-  }, [])
 
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)

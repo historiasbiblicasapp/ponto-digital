@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
 import { useAuth } from "./AuthContext"
 import { supabase } from "@/integrations/supabase/client"
 import type { Ferias } from "@/integrations/supabase/ponto-digital"
@@ -34,39 +34,60 @@ export function FeriasProvider({ children }: { children: ReactNode }) {
   const [ferias, setFerias] = useState<Ferias[]>([])
   const [saldo, setSaldo] = useState<SaldoFerias | null>(null)
   const [loading, setLoading] = useState(false)
+  const fetchedRef = useRef(false)
 
-  const refresh = useCallback(async () => {
+  useEffect(() => {
+    if (!user || !company?.id) return
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
+    ;(async () => {
+      setLoading(true)
+      try {
+        if (user.role === "user" && user.funcionario) {
+          const { data } = await supabase
+            .from("ferias")
+            .select("*")
+            .eq("funcionario_id", user.funcionario.id)
+            .order("created_at", { ascending: false })
+          if (data) setFerias(data)
+
+          const { data: saldoData } = await supabase
+            .from("view_saldo_ferias")
+            .select("*")
+            .eq("funcionario_id", user.funcionario.id)
+            .single()
+          if (saldoData) setSaldo(saldoData)
+        } else if (user.role === "admin" || user.role === "master") {
+          const { data } = await supabase
+            .from("ferias")
+            .select("*, funcionarios!inner(nome, matricula)")
+            .eq("empresa_id", company.id)
+            .order("created_at", { ascending: false })
+          if (data) setFerias(data)
+        }
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [user?.id, company?.id])
+
+  const refresh = async () => {
+    fetchedRef.current = false
     if (!user || !company?.id) return
     setLoading(true)
     try {
       if (user.role === "user" && user.funcionario) {
-        const { data } = await supabase
-          .from("ferias")
-          .select("*")
-          .eq("funcionario_id", user.funcionario.id)
-          .order("created_at", { ascending: false })
+        const { data } = await supabase.from("ferias").select("*").eq("funcionario_id", user.funcionario.id).order("created_at", { ascending: false })
         if (data) setFerias(data)
-
-        const { data: saldoData } = await supabase
-          .from("view_saldo_ferias")
-          .select("*")
-          .eq("funcionario_id", user.funcionario.id)
-          .single()
+        const { data: saldoData } = await supabase.from("view_saldo_ferias").select("*").eq("funcionario_id", user.funcionario.id).single()
         if (saldoData) setSaldo(saldoData)
-      } else if (user.role === "admin" || user.role === "master") {
-        const { data } = await supabase
-          .from("ferias")
-          .select("*, funcionarios!inner(nome, matricula)")
-          .eq("empresa_id", company.id)
-          .order("created_at", { ascending: false })
+      } else {
+        const { data } = await supabase.from("ferias").select("*, funcionarios!inner(nome, matricula)").eq("empresa_id", company.id).order("created_at", { ascending: false })
         if (data) setFerias(data)
       }
-    } finally {
-      setLoading(false)
-    }
-  }, [user, company])
-
-  useEffect(() => { refresh() }, [refresh])
+    } finally { setLoading(false) }
+  }
 
   const solicitarFerias = async (dados: { data_inicio: string; data_fim: string; dias: number; observacao?: string }) => {
     if (!user?.funcionario || !company?.id) throw new Error("Usuário não vinculado a funcionário")
