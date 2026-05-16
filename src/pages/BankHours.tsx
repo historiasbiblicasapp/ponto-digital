@@ -2,9 +2,11 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/integrations/supabase/client"
 import { Card } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Progress } from "@/components/ui/progress"
-import { ChevronLeft, ChevronRight, Clock, TrendingUp, TrendingDown, AlertCircle, CheckCircle2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Clock, TrendingUp, TrendingDown } from "lucide-react"
 import type { BancoHoras } from "@/integrations/supabase/ponto-digital"
+import { STACK, CARD_PADDING, TEXT, FLEX, GRID } from "@/lib/design-system"
 
 const BankHours = () => {
   const { user } = useAuth()
@@ -87,74 +89,76 @@ const BankHours = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={mesAnterior} className="p-2 hover:bg-muted rounded-lg">
-            <ChevronLeft className="w-5 h-5" />
+    <div className={STACK.page}>
+      <div className={FLEX.between}>
+        <div className={FLEX.center}>
+          <button onClick={mesAnterior} className="p-1.5 sm:p-2 hover:bg-muted rounded-lg">
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <h2 className="text-xl font-bold capitalize">{nomeMes}</h2>
-          <button onClick={proximoMes} className="p-2 hover:bg-muted rounded-lg">
-            <ChevronRight className="w-5 h-5" />
+          <h2 className="text-base sm:text-xl font-bold capitalize">{nomeMes}</h2>
+          <button onClick={proximoMes} className="p-1.5 sm:p-2 hover:bg-muted rounded-lg">
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 text-center">
-          <p className="text-sm text-muted-foreground">Dias Trabalhados</p>
-          <p className="text-3xl font-bold mt-1">{diasTrabalhados}</p>
+      <div className={GRID.stat4}>
+        <Card className={CARD_PADDING.compact + " text-center"}>
+          <p className={TEXT.small}>Dias Trabalhados</p>
+          <p className={TEXT.kpi}>{diasTrabalhados}</p>
         </Card>
-        <Card className="p-4 text-center">
-          <p className="text-sm text-muted-foreground">Horas Extras</p>
-          <p className="text-3xl font-bold mt-1 text-green-600">{totalExtras.toFixed(1)}h</p>
+        <Card className={CARD_PADDING.compact + " text-center"}>
+          <p className={TEXT.small}>Horas Extras</p>
+          <p className={"text-base sm:text-xl md:text-3xl font-bold font-mono mt-1 text-green-600"}>{totalExtras.toFixed(1)}h</p>
         </Card>
-        <Card className="p-4 text-center">
-          <p className="text-sm text-muted-foreground">Horas Débito</p>
-          <p className="text-3xl font-bold mt-1 text-red-600">{totalDebito.toFixed(1)}h</p>
+        <Card className={CARD_PADDING.compact + " text-center"}>
+          <p className={TEXT.small}>Horas Débito</p>
+          <p className={"text-base sm:text-xl md:text-3xl font-bold font-mono mt-1 text-red-600"}>{totalDebito.toFixed(1)}h</p>
         </Card>
-        <Card className="p-4 text-center">
-          <p className="text-sm text-muted-foreground">Saldo Total</p>
-          <p className={`text-3xl font-bold mt-1 ${saldoTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <Card className={CARD_PADDING.compact + " text-center"}>
+          <p className={TEXT.small}>Saldo Total</p>
+          <p className={`text-base sm:text-xl md:text-3xl font-bold font-mono mt-1 ${saldoTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {saldoTotal >= 0 ? '+' : ''}{saldoTotal.toFixed(1)}h
           </p>
         </Card>
       </div>
 
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4">Detalhamento Diário</h3>
+      <Card className={CARD_PADDING.standard}>
+        <h3 className={TEXT.sectionTitle + " mb-4"}>Detalhamento Diário</h3>
         {loading ? (
-          <p className="text-muted-foreground">Carregando...</p>
+          <div className={STACK.tight}>
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
+          </div>
         ) : registros.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p>Nenhum registro neste período</p>
+            <Clock className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 opacity-50" />
+            <p className={TEXT.body}>Nenhum registro neste período</p>
           </div>
         ) : (
-          <div className="space-y-3 max-h-96 overflow-auto">
+          <div className={STACK.tight + " max-h-96 overflow-auto"}>
             {registros.map((r) => (
-              <div key={r.data} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
+              <div key={r.data} className={FLEX.between + " p-3 bg-muted/50 rounded-lg"}>
+                <div className={FLEX.center}>
                   {r.saldo >= 0
-                    ? <TrendingUp className="w-5 h-5 text-green-500" />
-                    : <TrendingDown className="w-5 h-5 text-red-500" />
+                    ? <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 shrink-0" />
+                    : <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 shrink-0" />
                   }
-                  <div>
-                    <p className="font-medium">
+                  <div className="min-w-0">
+                    <p className="font-medium text-xs sm:text-sm">
                       {new Date(r.data + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className={TEXT.small}>
                       {r.horas_trabalhadas.toFixed(1)}h / {r.horas_previstas.toFixed(1)}h previstas
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className={`font-bold text-lg ${r.saldo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="text-right shrink-0">
+                  <p className={`font-bold text-sm sm:text-lg ${r.saldo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {r.saldo >= 0 ? '+' : ''}{r.saldo.toFixed(1)}h
                   </p>
                   <Progress
                     value={Math.min(100, (r.horas_trabalhadas / r.horas_previstas) * 100)}
-                    className="w-24 h-1.5 mt-1"
+                    className="w-16 sm:w-24 h-1.5 mt-1"
                   />
                 </div>
               </div>

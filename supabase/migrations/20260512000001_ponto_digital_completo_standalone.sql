@@ -587,44 +587,54 @@ BEGIN
   SELECT id INTO v_master_tenant_id FROM public.tenants WHERE slug = 'master';
   SELECT id INTO v_example_tenant_id FROM public.tenants WHERE slug = 'empresa-exemplo';
 
-  -- Criar usuário master no auth
+  -- Criar usuário master no auth (se não existir)
   INSERT INTO auth.users (
     instance_id, id, aud, role, email, encrypted_password,
     email_confirmed_at, confirmation_token, confirmation_sent_at,
     recovery_token, raw_app_meta_data, raw_user_meta_data,
     created_at, updated_at, is_super_admin
-  ) VALUES (
+  ) SELECT
     v_instance_id, gen_random_uuid(), 'authenticated', 'authenticated',
     'master@pontodigital.com',
-    crypt('Master@2026', gen_salt('bf')),
+    extensions.crypt('Master@2026', extensions.gen_salt('bf')),
     NOW(), '', NOW(), '',
     '{"provider":"email","providers":["email"]}',
     '{"role":"master"}',
     NOW(), NOW(), true
-  ) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+  WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'master@pontodigital.com')
   RETURNING id INTO v_master_user_id;
+
+  -- Se o usuário já existir, obter o ID existente
+  IF v_master_user_id IS NULL THEN
+    SELECT id INTO v_master_user_id FROM auth.users WHERE email = 'master@pontodigital.com';
+  END IF;
 
   -- Vincular master ao tenant master
   INSERT INTO public.tenant_users (tenant_id, email, role, active)
   VALUES (v_master_tenant_id, 'master@pontodigital.com', 'master', true)
   ON CONFLICT (tenant_id, email) DO NOTHING;
 
-  -- Criar usuário admin da empresa exemplo
+  -- Criar usuário admin da empresa exemplo (se não existir)
   INSERT INTO auth.users (
     instance_id, id, aud, role, email, encrypted_password,
     email_confirmed_at, confirmation_token, confirmation_sent_at,
     recovery_token, raw_app_meta_data, raw_user_meta_data,
     created_at, updated_at
-  ) VALUES (
+  ) SELECT
     v_instance_id, gen_random_uuid(), 'authenticated', 'authenticated',
     'admin@exemplo.com',
-    crypt('Admin@2026', gen_salt('bf')),
+    extensions.crypt('Admin@2026', extensions.gen_salt('bf')),
     NOW(), '', NOW(), '',
     '{"provider":"email","providers":["email"]}',
     '{"role":"admin"}',
     NOW(), NOW()
-  ) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+  WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'admin@exemplo.com')
   RETURNING id INTO v_example_user_id;
+
+  -- Se o usuário já existir, obter o ID existente
+  IF v_example_user_id IS NULL THEN
+    SELECT id INTO v_example_user_id FROM auth.users WHERE email = 'admin@exemplo.com';
+  END IF;
 
   -- Vincular admin à empresa exemplo
   INSERT INTO public.tenant_users (tenant_id, email, role, active)

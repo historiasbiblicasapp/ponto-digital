@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
-import { Plus, Pencil, Search, UserCog, Building2, Shield } from "lucide-react"
+import { Plus, Pencil, Search } from "lucide-react"
 import type { Funcionario, Filial } from "@/integrations/supabase/ponto-digital"
 import { TIPOS_JORNADA } from "@/integrations/supabase/ponto-digital"
+import { STACK, CARD_PADDING, GRID, TEXT, FLEX, TABLE, DIALOG, BUTTON, PAGE_PADDING, HIDE } from "@/lib/design-system"
 
 const AdminEmployees = () => {
   const { company, user } = useAuth()
@@ -177,53 +179,53 @@ const AdminEmployees = () => {
   )
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={STACK.page}>
+      <div className={FLEX.between}>
         <div>
-          <h1 className="text-3xl font-bold">Funcionários</h1>
-          <p className="text-muted-foreground">{funcionarios.length} cadastrados</p>
+          <h1 className={TEXT.pageTitle}>Funcionários</h1>
+          <p className={TEXT.body}>{funcionarios.length} cadastrados</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           if (!open) resetForm()
           setDialogOpen(open)
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className={BUTTON.primary}>
               <Plus className="w-4 h-4 mr-2" />
               Novo Funcionário
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogContent className={DIALOG.content}>
+            <DialogHeader className={DIALOG.header}>
               <DialogTitle>{editing ? "Editar Funcionário" : "Novo Funcionário"}</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Matrícula *</Label>
+            <div className={GRID.form2}>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Matrícula *</Label>
                 <Input
                   value={form.matricula}
                   onChange={(e) => setForm({ ...form, matricula: e.target.value })}
                   placeholder="001"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Nome *</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Nome *</Label>
                 <Input
                   value={form.nome}
                   onChange={(e) => setForm({ ...form, nome: e.target.value })}
                   placeholder="Nome completo"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>CPF</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>CPF</Label>
                 <Input
                   value={form.cpf}
                   onChange={(e) => setForm({ ...form, cpf: e.target.value })}
                   placeholder="000.000.000-00"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Email</Label>
                 <Input
                   type="email"
                   value={form.email}
@@ -231,32 +233,32 @@ const AdminEmployees = () => {
                   placeholder="email@exemplo.com"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Telefone</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Telefone</Label>
                 <Input
                   value={form.telefone}
                   onChange={(e) => setForm({ ...form, telefone: e.target.value })}
                   placeholder="(11) 99999-9999"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Cargo</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Cargo</Label>
                 <Input
                   value={form.cargo}
                   onChange={(e) => setForm({ ...form, cargo: e.target.value })}
                   placeholder="Auxiliar"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Setor</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Setor</Label>
                 <Input
                   value={form.setor}
                   onChange={(e) => setForm({ ...form, setor: e.target.value })}
                   placeholder="Produção"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Filial</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Filial</Label>
                 <Select
                   value={form.filial_id}
                   onValueChange={(v) => setForm({ ...form, filial_id: v })}
@@ -272,8 +274,8 @@ const AdminEmployees = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>PIN (Kiosk)</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>PIN (Kiosk)</Label>
                 <Input
                   value={form.pin}
                   onChange={(e) => setForm({ ...form, pin: e.target.value })}
@@ -281,8 +283,8 @@ const AdminEmployees = () => {
                   maxLength={6}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Tipo de Jornada</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Tipo de Jornada</Label>
                 <Select
                   value={form.tipo_jornada}
                   onValueChange={(v) => setForm({ ...form, tipo_jornada: v })}
@@ -297,24 +299,24 @@ const AdminEmployees = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Carga Semanal (h)</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Carga Semanal (h)</Label>
                 <Input
                   type="number"
                   value={form.carga_horaria_semanal}
                   onChange={(e) => setForm({ ...form, carga_horaria_semanal: Number(e.target.value) })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Horas Diária</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Horas Diária</Label>
                 <Input
                   type="number"
                   value={form.horas_diaria}
                   onChange={(e) => setForm({ ...form, horas_diaria: Number(e.target.value) })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Tolerância (min)</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Tolerância (min)</Label>
                 <Input
                   type="number"
                   value={form.tolerancia_minutos}
@@ -339,29 +341,29 @@ const AdminEmployees = () => {
         />
       </div>
 
-      <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+      <Card className={CARD_PADDING.table}>
+        <div className={TABLE.wrapper}>
+          <table className={TABLE.table}>
             <thead>
               <tr className="border-b">
-                <th className="text-left p-4 text-sm font-medium text-muted-foreground">Matrícula</th>
-                <th className="text-left p-4 text-sm font-medium text-muted-foreground">Nome</th>
-                <th className="text-left p-4 text-sm font-medium text-muted-foreground">Cargo</th>
-                <th className="text-left p-4 text-sm font-medium text-muted-foreground">Setor</th>
-                <th className="text-left p-4 text-sm font-medium text-muted-foreground">Jornada</th>
-                <th className="text-left p-4 text-sm font-medium text-muted-foreground">Status</th>
-                <th className="text-right p-4 text-sm font-medium text-muted-foreground">Ações</th>
+                <th className={TABLE.th}>Matrícula</th>
+                <th className={TABLE.th}>Nome</th>
+                <th className={TABLE.th}>Cargo</th>
+                <th className={TABLE.th}>Setor</th>
+                <th className={TABLE.th}>Jornada</th>
+                <th className={TABLE.th}>Status</th>
+                <th className={`${TABLE.th} text-right`}>Ações</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((f) => (
-                <tr key={f.id} className="border-b last:border-0 hover:bg-muted/50">
-                  <td className="p-4 font-mono text-sm">{f.matricula}</td>
-                  <td className="p-4 font-medium">{f.nome}</td>
-                  <td className="p-4 text-sm text-muted-foreground">{f.cargo || '-'}</td>
-                  <td className="p-4 text-sm text-muted-foreground">{f.setor || '-'}</td>
-                  <td className="p-4 text-sm">{f.tipo_jornada}</td>
-                  <td className="p-4">
+                <tr key={f.id} className={`border-b last:border-0 hover:bg-muted/50 ${TABLE.row}`}>
+                  <td className={TABLE.td} data-label="Matrícula"><span className={TEXT.mono}>{f.matricula}</span></td>
+                  <td className={TABLE.td} data-label="Nome"><span className="font-medium">{f.nome}</span></td>
+                  <td className={TABLE.td} data-label="Cargo"><span className={TEXT.small}>{f.cargo || '-'}</span></td>
+                  <td className={TABLE.td} data-label="Setor"><span className={TEXT.small}>{f.setor || '-'}</span></td>
+                  <td className={TABLE.td} data-label="Jornada"><span className={TEXT.body}>{f.tipo_jornada}</span></td>
+                  <td className={TABLE.td} data-label="Status">
                     <Badge
                       variant="outline"
                       className={f.ativo ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}
@@ -369,8 +371,8 @@ const AdminEmployees = () => {
                       {f.ativo ? "Ativo" : "Inativo"}
                     </Badge>
                   </td>
-                  <td className="p-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className={`${TABLE.td} ds-td-label text-right`}>
+                    <div className={FLEX.end}>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(f)}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -378,10 +380,9 @@ const AdminEmployees = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleToggleActive(f)}
+                        className="text-xs"
                       >
-                        <Badge variant="outline" className={f.ativo ? "text-red-600" : "text-green-600"}>
-                          {f.ativo ? "Desativar" : "Ativar"}
-                        </Badge>
+                        {f.ativo ? "Desativar" : "Ativar"}
                       </Button>
                     </div>
                   </td>

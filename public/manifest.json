@@ -1,12 +1,12 @@
 {
-  "name": "LF Vendas",
-  "short_name": "LF Vendas",
-  "description": "Sistema de gestão de vendas de roupas",
+  "name": "Ponto Digital BM",
+  "short_name": "Ponto Digital",
+  "description": "Sistema de Ponto Eletrônico Online Multiempresa",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#16a34a",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://i.imgur.com/tiaxv2b.png",
@@ -18,5 +18,8 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "pt-BR",
+  "scope": "/"
 }

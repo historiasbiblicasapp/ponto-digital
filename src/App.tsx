@@ -5,7 +5,10 @@ import { Toaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider, useAuth } from "@/contexts/AuthContext"
 import { ThemeProvider } from "@/contexts/ThemeContext"
+import { NotificationProvider } from "@/contexts/NotificationContext"
+import { LGPDProvider, useLGPD } from "@/contexts/LGPDContext"
 
+import { FeriasProvider } from "@/contexts/FeriasContext"
 import EmployeeLayout from "@/components/EmployeeLayout"
 import AdminLayout from "@/components/AdminLayout"
 
@@ -17,12 +20,19 @@ import EmployeeDashboard from "@/pages/EmployeeDashboard"
 import TimeHistory from "@/pages/TimeHistory"
 import BankHours from "@/pages/BankHours"
 import TimeRequests from "@/pages/TimeRequests"
+import NotificacoesPage from "@/pages/NotificacoesPage"
+import LGPDConsent from "@/pages/LGPDConsent"
+import LGPDMeusDados from "@/pages/LGPDMeusDados"
+import EmployeeFerias from "@/pages/EmployeeFerias"
+import AdminFerias from "@/pages/AdminFerias"
 
 import AdminDashboard from "@/pages/AdminDashboard"
 import AdminEmployees from "@/pages/AdminEmployees"
 import AdminSchedules from "@/pages/AdminSchedules"
 import AdminReports from "@/pages/AdminReports"
 import AdminSettings from "@/pages/AdminSettings"
+import AdminTimeRequests from "@/pages/AdminTimeRequests"
+import FiscalAuditoria from "@/pages/FiscalAuditoria"
 
 import MasterDashboard from "@/pages/MasterDashboard"
 import MasterTenants from "@/pages/MasterTenants"
@@ -39,6 +49,17 @@ const LoadingScreen = () => (
     </div>
   </div>
 )
+
+const LGPDGuard = ({ children }: { children: React.ReactNode }) => {
+  const { precisaConsentir, loading } = useLGPD()
+  const { user } = useAuth()
+
+  if (loading) return <LoadingScreen />
+  if (precisaConsentir && user?.role === "user") {
+    return <Navigate to="/app/lgpd-consentimento" replace />
+  }
+  return <>{children}</>
+}
 
 const AppRoutes = () => {
   const { user, loading } = useAuth()
@@ -62,6 +83,7 @@ const AppRoutes = () => {
         <Route path="/master" element={<AdminLayout />}>
           <Route index element={<MasterDashboard />} />
           <Route path="empresas" element={<MasterTenants />} />
+          <Route path="auditoria" element={<FiscalAuditoria />} />
         </Route>
         <Route path="/kiosk" element={<KioskPage />} />
         <Route path="*" element={<Navigate to="/master" replace />} />
@@ -71,37 +93,57 @@ const AppRoutes = () => {
 
   if (user.role === "admin" && user.tenant_slug !== "master") {
     return (
-      <Routes>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="funcionarios" element={<AdminEmployees />} />
-          <Route path="escalas" element={<AdminSchedules />} />
-          <Route path="relatorios" element={<AdminReports />} />
-          <Route path="configuracoes" element={<AdminSettings />} />
-        </Route>
-        <Route path="/app" element={<EmployeeLayout />}>
-          <Route index element={<EmployeeDashboard />} />
-          <Route path="historico" element={<TimeHistory />} />
-          <Route path="banco-horas" element={<BankHours />} />
-          <Route path="solicitacoes" element={<TimeRequests />} />
-        </Route>
-        <Route path="/kiosk" element={<KioskPage />} />
-        <Route path="*" element={<Navigate to="/admin" replace />} />
-      </Routes>
+      <LGPDProvider>
+        <FeriasProvider>
+        <Routes>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="funcionarios" element={<AdminEmployees />} />
+            <Route path="escalas" element={<AdminSchedules />} />
+            <Route path="relatorios" element={<AdminReports />} />
+            <Route path="solicitacoes" element={<AdminTimeRequests />} />
+            <Route path="ferias" element={<AdminFerias />} />
+            <Route path="auditoria" element={<FiscalAuditoria />} />
+            <Route path="configuracoes" element={<AdminSettings />} />
+            <Route path="lgpd" element={<LGPDMeusDados />} />
+          </Route>
+          <Route path="/app" element={<EmployeeLayout />}>
+            <Route index element={<LGPDGuard><EmployeeDashboard /></LGPDGuard>} />
+            <Route path="historico" element={<LGPDGuard><TimeHistory /></LGPDGuard>} />
+            <Route path="banco-horas" element={<LGPDGuard><BankHours /></LGPDGuard>} />
+            <Route path="solicitacoes" element={<LGPDGuard><TimeRequests /></LGPDGuard>} />
+            <Route path="ferias" element={<LGPDGuard><EmployeeFerias /></LGPDGuard>} />
+            <Route path="notificacoes" element={<LGPDGuard><NotificacoesPage /></LGPDGuard>} />
+            <Route path="lgpd" element={<LGPDGuard><LGPDMeusDados /></LGPDGuard>} />
+            <Route path="lgpd-consentimento" element={<LGPDConsent />} />
+          </Route>
+          <Route path="/kiosk" element={<KioskPage />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
+        </Routes>
+        </FeriasProvider>
+      </LGPDProvider>
     )
   }
 
   return (
-    <Routes>
-      <Route path="/app" element={<EmployeeLayout />}>
-        <Route index element={<EmployeeDashboard />} />
-        <Route path="historico" element={<TimeHistory />} />
-        <Route path="banco-horas" element={<BankHours />} />
-        <Route path="solicitacoes" element={<TimeRequests />} />
-      </Route>
-      <Route path="/kiosk" element={<KioskPage />} />
-      <Route path="*" element={<Navigate to="/app" replace />} />
-    </Routes>
+    <LGPDProvider>
+      <FeriasProvider>
+      <Routes>
+        <Route path="/app" element={<EmployeeLayout />}>
+          <Route index element={<LGPDGuard><EmployeeDashboard /></LGPDGuard>} />
+          <Route path="historico" element={<LGPDGuard><TimeHistory /></LGPDGuard>} />
+          <Route path="banco-horas" element={<LGPDGuard><BankHours /></LGPDGuard>} />
+          <Route path="solicitacoes" element={<LGPDGuard><TimeRequests /></LGPDGuard>} />
+          <Route path="ferias" element={<LGPDGuard><EmployeeFerias /></LGPDGuard>} />
+          <Route path="notificacoes" element={<LGPDGuard><NotificacoesPage /></LGPDGuard>} />
+          <Route path="lgpd" element={<LGPDGuard><LGPDMeusDados /></LGPDGuard>} />
+          <Route path="lgpd-consentimento" element={<LGPDConsent />} />
+        </Route>
+        <Route path="/kiosk" element={<KioskPage />} />
+        <Route path="*" element={<Navigate to="/app" replace />} />
+      </Routes>
+      </FeriasProvider>
+    </LGPDProvider>
   )
 }
 
@@ -112,9 +154,11 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <ThemeProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <NotificationProvider>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <AppRoutes />
+            </BrowserRouter>
+          </NotificationProvider>
         </ThemeProvider>
       </AuthProvider>
     </TooltipProvider>

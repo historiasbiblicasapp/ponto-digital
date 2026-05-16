@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Clock, UserCheck, Camera, Fingerprint, Smartphone } from "lucide-react"
+import { Clock, UserCheck, Camera, Fingerprint, Smartphone, QrCode } from "lucide-react"
 import type { Funcionario, TipoRegistro } from "@/integrations/supabase/ponto-digital"
 import {
   obterUltimoRegistro,
@@ -25,6 +25,8 @@ const KioskPage = () => {
   const [horarioAtual, setHorarioAtual] = useState(new Date())
   const [empresaId, setEmpresaId] = useState<string>("")
   const [dispositivoId, setDispositivoId] = useState<string>("")
+  const [mostrarQR, setMostrarQR] = useState(false)
+  const [qrDataURL, setQrDataURL] = useState("")
 
   useEffect(() => {
     const interval = setInterval(() => setHorarioAtual(new Date()), 1000)
@@ -37,6 +39,20 @@ const KioskPage = () => {
       inputRef.current.focus()
     }
   }, [step])
+
+  useEffect(() => {
+    if (mostrarQR && empresaId) {
+      import("qrcode").then(qr => {
+        qr.toDataURL(window.location.origin + "/kiosk?empresa=" + (localStorage.getItem("kiosk_empresa_slug") || ""), {
+          width: 256,
+          margin: 2,
+          color: { dark: "#00ff88", light: "#0a0a0f" },
+        }, (err, url) => {
+          if (!err) setQrDataURL(url)
+        })
+      })
+    }
+  }, [mostrarQR, empresaId])
 
   const carregarConfigKiosk = async () => {
     const params = new URLSearchParams(window.location.search)
@@ -271,13 +287,28 @@ const KioskPage = () => {
               {loading ? "Buscando..." : "Confirmar Matrícula"}
             </Button>
 
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              className="w-full text-sm text-muted-foreground hover:text-foreground py-2"
-            >
-              Voltar ao Login
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="flex-1 text-sm text-muted-foreground hover:text-foreground py-2"
+              >
+                Voltar ao Login
+              </button>
+              <button
+                type="button"
+                onClick={() => setMostrarQR(!mostrarQR)}
+                className="flex-1 text-sm text-muted-foreground hover:text-foreground py-2 flex items-center justify-center gap-1"
+              >
+                <QrCode className="w-4 h-4" /> QR Code
+              </button>
+            </div>
+            {mostrarQR && qrDataURL && (
+              <div className="text-center pt-4 border-t border-glass-border">
+                <p className="text-xs text-muted-foreground mb-2">Escaneie para acessar o Kiosk</p>
+                <img src={qrDataURL} alt="QR Code" className="mx-auto w-32 h-32 rounded-xl" />
+              </div>
+            )}
           </form>
         )}
 

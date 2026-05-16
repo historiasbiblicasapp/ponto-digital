@@ -5,11 +5,13 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import { FileText, Download, FileSpreadsheet, Printer, Calendar, Users, Shield, FileCode, FileJson, Scale } from "lucide-react"
 import { formatarTempoRegistro, formatarDataRegistro, calcularHorasTrabalhadas, calcularSaldo } from "@/integrations/supabase/ponto-digital"
 import type { Funcionario, RegistroPonto } from "@/integrations/supabase/ponto-digital"
 import { obterRegistrosPorMes } from "@/lib/ponto-utils"
+import { STACK, CARD_PADDING, GRID, TEXT, FLEX, BUTTON } from "@/lib/design-system"
 
 const AdminReports = () => {
   const { company } = useAuth()
@@ -454,15 +456,15 @@ HASH GERAL: ${await gerarHashGeral(afd)}
   }
 
   return (
-    <div className="space-y-6">
+    <div className={STACK.page}>
       <div>
-        <h1 className="text-3xl font-bold">Relatórios</h1>
-        <p className="text-muted-foreground">Exporte relatórios de ponto e arquivos fiscais</p>
+        <h1 className={TEXT.pageTitle}>Relatórios</h1>
+        <p className={TEXT.body}>Exporte relatórios de ponto e arquivos fiscais</p>
       </div>
 
-      <div className="grid md:grid-cols-4 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Funcionário</label>
+      <div className={GRID.filters}>
+        <div className={STACK.tight}>
+          <label className={TEXT.label}>Funcionário</label>
           <Select value={funcionarioId} onValueChange={setFuncionarioId}>
             <SelectTrigger>
               <SelectValue placeholder="Todos os funcionários" />
@@ -478,8 +480,8 @@ HASH GERAL: ${await gerarHashGeral(afd)}
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Mês</label>
+        <div className={STACK.tight}>
+          <label className={TEXT.label}>Mês</label>
           <Select value={mes} onValueChange={setMes}>
             <SelectTrigger>
               <SelectValue />
@@ -494,8 +496,8 @@ HASH GERAL: ${await gerarHashGeral(afd)}
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Ano</label>
+        <div className={STACK.tight}>
+          <label className={TEXT.label}>Ano</label>
           <Select value={ano} onValueChange={setAno}>
             <SelectTrigger>
               <SelectValue />
@@ -520,58 +522,62 @@ HASH GERAL: ${await gerarHashGeral(afd)}
       </div>
 
       <Tabs defaultValue="fiscais">
-        <TabsList className="w-full grid grid-cols-4">
-          <TabsTrigger value="fiscais" className="gap-2">
-            <Scale className="w-4 h-4" />
-            Fiscais (Portaria 671)
+        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
+          <TabsTrigger value="fiscais" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Scale className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Fiscais (Portaria 671)</span>
+            <span className="sm:hidden">Fiscais</span>
           </TabsTrigger>
-          <TabsTrigger value="espelho" className="gap-2">
-            <FileText className="w-4 h-4" />
-            Espelho de Ponto
+          <TabsTrigger value="espelho" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Espelho de Ponto</span>
+            <span className="sm:hidden">Espelho</span>
           </TabsTrigger>
-          <TabsTrigger value="exportar" className="gap-2">
-            <Download className="w-4 h-4" />
-            Exportar
+          <TabsTrigger value="exportar" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Exportar</span>
+            <span className="sm:hidden">Exportar</span>
           </TabsTrigger>
-          <TabsTrigger value="resumo" className="gap-2">
-            <FileSpreadsheet className="w-4 h-4" />
-            Resumo
+          <TabsTrigger value="resumo" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <FileSpreadsheet className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Resumo</span>
+            <span className="sm:hidden">Resumo</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="fiscais" className="mt-6">
-          <Card className="p-6 border-2 border-amber-200 bg-amber-50/50">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="p-3 rounded-xl bg-amber-100">
-                <Scale className="w-8 h-8 text-amber-700" />
+        <TabsContent value="fiscais" className="mt-4 sm:mt-6">
+          <Card className={`${CARD_PADDING.spacious} border-2 border-amber-200 bg-amber-50/50`}>
+            <div className={FLEX.start + " mb-4 sm:mb-6"}>
+              <div className="p-2 sm:p-3 rounded-xl bg-amber-100 shrink-0">
+                <Scale className="w-6 h-6 sm:w-8 sm:h-8 text-amber-700" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-amber-900">Arquivos Fiscais - Portaria MTP 671/2021</h2>
-                <p className="text-sm text-amber-700 mt-1">
+                <h2 className="text-base sm:text-xl font-bold text-amber-900">Arquivos Fiscais - Portaria MTP 671/2021</h2>
+                <p className={TEXT.small + " text-amber-700 mt-1"}>
                   Geração de arquivos obrigatórios para fiscalização trabalhista.
                   Conforme exigências do Ministério do Trabalho e Emprego para sistemas REP-A.
                 </p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
-              <Card className="p-5 bg-white border-2 border-amber-100 hover:border-amber-300 transition-colors">
-                <div className="flex items-start justify-between mb-4">
+            <div className={GRID.cards3}>
+              <Card className={"p-4 sm:p-5 bg-white border-2 border-amber-100 hover:border-amber-300 transition-colors"}>
+                <div className={FLEX.betweenNowrap + " mb-3 sm:mb-4"}>
                   <div>
-                    <h3 className="font-bold text-base">AFD</h3>
-                    <p className="text-xs text-muted-foreground">Arquivo Fonte de Dados</p>
+                    <h3 className="font-bold text-sm sm:text-base">AFD</h3>
+                    <p className={TEXT.small}>Arquivo Fonte de Dados</p>
                   </div>
-                  <FileCode className="w-8 h-8 text-amber-600" />
+                  <FileCode className="w-6 h-6 sm:w-8 sm:h-8 text-amber-600 shrink-0" />
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className={TEXT.body + " mb-3 sm:mb-4"}>
                   Arquivo texto completo com todos os registros de ponto, funcionários e
                   eventos do sistema. Formato exigido pelo MTE para auditoria fiscal.
                 </p>
-                <ul className="text-xs text-muted-foreground space-y-1 mb-4">
-                  <li>✓ Todos os funcionários do período</li>
-                  <li>✓ Registros com hash de integridade</li>
-                  <li>✓ Geolocalização das marcações</li>
-                  <li>✓ Totalização e hash geral</li>
+                <ul className={STACK.tight + " text-xs text-muted-foreground mb-3 sm:mb-4"}>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Todos os funcionários do período</li>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Registros com hash de integridade</li>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Geolocalização das marcações</li>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Totalização e hash geral</li>
                 </ul>
                 <Button
                   className="w-full bg-amber-600 hover:bg-amber-700"
@@ -583,23 +589,23 @@ HASH GERAL: ${await gerarHashGeral(afd)}
                 </Button>
               </Card>
 
-              <Card className="p-5 bg-white border-2 border-amber-100 hover:border-amber-300 transition-colors">
-                <div className="flex items-start justify-between mb-4">
+              <Card className={"p-4 sm:p-5 bg-white border-2 border-amber-100 hover:border-amber-300 transition-colors"}>
+                <div className={FLEX.betweenNowrap + " mb-3 sm:mb-4"}>
                   <div>
-                    <h3 className="font-bold text-base">AEJ</h3>
-                    <p className="text-xs text-muted-foreground">Arquivo Eletrônico de Jornada</p>
+                    <h3 className="font-bold text-sm sm:text-base">AEJ</h3>
+                    <p className={TEXT.small}>Arquivo Eletrônico de Jornada</p>
                   </div>
-                  <FileJson className="w-8 h-8 text-amber-600" />
+                  <FileJson className="w-6 h-6 sm:w-8 sm:h-8 text-amber-600 shrink-0" />
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className={TEXT.body + " mb-3 sm:mb-4"}>
                   Arquivo JSON estruturado com a jornada completa de cada funcionário.
                   Formato digital para análise fiscal e importação em sistemas de auditoria.
                 </p>
-                <ul className="text-xs text-muted-foreground space-y-1 mb-4">
-                  <li>✓ Jornada diária por funcionário</li>
-                  <li>✓ Marcações completas com hash</li>
-                  <li>✓ Totais e saldos calculados</li>
-                  <li>✓ Metadados do sistema e portaria</li>
+                <ul className={STACK.tight + " text-xs text-muted-foreground mb-3 sm:mb-4"}>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Jornada diária por funcionário</li>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Marcações completas com hash</li>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Totais e saldos calculados</li>
+                  <li className={FLEX.start}><span className="text-amber-600">✓</span> Metadados do sistema e portaria</li>
                 </ul>
                 <Button
                   className="w-full bg-amber-600 hover:bg-amber-700"
@@ -611,23 +617,23 @@ HASH GERAL: ${await gerarHashGeral(afd)}
                 </Button>
               </Card>
 
-              <Card className="p-5 bg-white border-2 border-red-100 hover:border-red-300 transition-colors">
-                <div className="flex items-start justify-between mb-4">
+              <Card className={"p-4 sm:p-5 bg-white border-2 border-red-100 hover:border-red-300 transition-colors"}>
+                <div className={FLEX.betweenNowrap + " mb-3 sm:mb-4"}>
                   <div>
-                    <h3 className="font-bold text-base">Espelho Mensal</h3>
-                    <p className="text-xs text-muted-foreground">Individual por funcionário</p>
+                    <h3 className="font-bold text-sm sm:text-base">Espelho Mensal</h3>
+                    <p className={TEXT.small}>Individual por funcionário</p>
                   </div>
-                  <FileText className="w-8 h-8 text-red-600" />
+                  <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-red-600 shrink-0" />
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className={TEXT.body + " mb-3 sm:mb-4"}>
                   Espelho de ponto mensal individual completo para assinatura.
                   Documento obrigatório para validação da jornada do funcionário.
                 </p>
-                <ul className="text-xs text-muted-foreground space-y-1 mb-4">
-                  <li>✓ Todas as marcações do mês</li>
-                  <li>✓ Totais de horas trabalhadas</li>
-                  <li>✓ Campo de assinatura funcionário/RH</li>
-                  <li>✓ Referência à Portaria 671/2021</li>
+                <ul className={STACK.tight + " text-xs text-muted-foreground mb-3 sm:mb-4"}>
+                  <li className={FLEX.start}><span className="text-red-600">✓</span> Todas as marcações do mês</li>
+                  <li className={FLEX.start}><span className="text-red-600">✓</span> Totais de horas trabalhadas</li>
+                  <li className={FLEX.start}><span className="text-red-600">✓</span> Campo de assinatura funcionário/RH</li>
+                  <li className={FLEX.start}><span className="text-red-600">✓</span> Referência à Portaria 671/2021</li>
                 </ul>
                 <Button
                   className="w-full"
@@ -642,9 +648,9 @@ HASH GERAL: ${await gerarHashGeral(afd)}
               </Card>
             </div>
 
-            <div className="mt-6 p-4 rounded-lg bg-amber-100/50 border border-amber-200">
-              <p className="text-sm font-medium text-amber-800 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
+            <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg bg-amber-100/50 border border-amber-200">
+              <p className={FLEX.center + " text-xs sm:text-sm font-medium text-amber-800"}>
+                <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
                 Conformidade Portaria 671/2021
               </p>
               <ul className="text-xs text-amber-700 mt-2 space-y-1 ml-6 list-disc">
@@ -659,18 +665,18 @@ HASH GERAL: ${await gerarHashGeral(afd)}
           </Card>
         </TabsContent>
 
-        <TabsContent value="espelho" className="mt-6">
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-2">Espelho de Ponto Mensal</h2>
-            <p className="text-sm text-muted-foreground mb-6">
+        <TabsContent value="espelho" className="mt-4 sm:mt-6">
+          <Card className={CARD_PADDING.spacious}>
+            <h2 className={TEXT.sectionTitle + " mb-2"}>Espelho de Ponto Mensal</h2>
+            <p className={TEXT.body + " mb-4 sm:mb-6"}>
               Gere o espelho de ponto individual em PDF para impressão e assinatura.
               Necessário selecionar um funcionário específico.
             </p>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <Card className="p-4 bg-muted/50">
-                <h3 className="font-medium text-sm mb-1">Espelho Individual</h3>
-                <p className="text-xs text-muted-foreground mb-3">
+            <div className={GRID.cards2}>
+              <Card className={"p-3 sm:p-4 bg-muted/50"}>
+                <h3 className="font-medium text-xs sm:text-sm mb-1">Espelho Individual</h3>
+                <p className={TEXT.small + " mb-3"}>
                   Documento completo com todas as marcações, totais e campos para assinatura
                 </p>
                 <Button
@@ -683,9 +689,9 @@ HASH GERAL: ${await gerarHashGeral(afd)}
                 </Button>
               </Card>
 
-              <Card className="p-4 bg-muted/50">
-                <h3 className="font-medium text-sm mb-1">Lote (todos)</h3>
-                <p className="text-xs text-muted-foreground mb-3">
+              <Card className={"p-3 sm:p-4 bg-muted/50"}>
+                <h3 className="font-medium text-xs sm:text-sm mb-1">Lote (todos)</h3>
+                <p className={TEXT.small + " mb-3"}>
                   Gera espelhos individuais para todos os funcionários ativos em lote
                 </p>
                 <Button
@@ -723,13 +729,13 @@ HASH GERAL: ${await gerarHashGeral(afd)}
           </Card>
         </TabsContent>
 
-        <TabsContent value="exportar" className="mt-6">
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-2">Exportar Relatórios</h2>
-            <p className="text-sm text-muted-foreground mb-6">
+        <TabsContent value="exportar" className="mt-4 sm:mt-6">
+          <Card className={CARD_PADDING.spacious}>
+            <h2 className={TEXT.sectionTitle + " mb-2"}>Exportar Relatórios</h2>
+            <p className={TEXT.body + " mb-4 sm:mb-6"}>
               Exporte os registros de ponto em formato PDF ou CSV
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className={FLEX.row}>
               <Button onClick={() => gerarRelatorioComum('pdf')} disabled={loading}>
                 <FileText className="w-4 h-4 mr-2" />
                 PDF
@@ -742,27 +748,27 @@ HASH GERAL: ${await gerarHashGeral(afd)}
           </Card>
         </TabsContent>
 
-        <TabsContent value="resumo" className="mt-6">
-          <div className="grid md:grid-cols-4 gap-4">
-            <Card className="p-4 text-center">
-              <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-bold">{funcionarios.length}</p>
-              <p className="text-sm text-muted-foreground">Funcionários ativos</p>
+        <TabsContent value="resumo" className="mt-4 sm:mt-6">
+          <div className={GRID.stat4}>
+            <Card className={CARD_PADDING.compact + " text-center"}>
+              <Users className="w-5 h-5 sm:w-8 sm:h-8 mx-auto mb-2 text-primary" />
+              <p className={TEXT.kpi}>{funcionarios.length}</p>
+              <p className={TEXT.small}>Funcionários ativos</p>
             </Card>
-            <Card className="p-4 text-center">
-              <Calendar className="w-8 h-8 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-bold">{mes}/{ano}</p>
-              <p className="text-sm text-muted-foreground">Período selecionado</p>
+            <Card className={CARD_PADDING.compact + " text-center"}>
+              <Calendar className="w-5 h-5 sm:w-8 sm:h-8 mx-auto mb-2 text-primary" />
+              <p className={TEXT.kpi}>{mes}/{ano}</p>
+              <p className={TEXT.small}>Período selecionado</p>
             </Card>
-            <Card className="p-4 text-center">
-              <Shield className="w-8 h-8 mx-auto mb-2 text-amber-600" />
-              <p className="text-2xl font-bold">Portaria 671</p>
-              <p className="text-sm text-muted-foreground">Relatórios fiscais</p>
+            <Card className={CARD_PADDING.compact + " text-center"}>
+              <Shield className="w-5 h-5 sm:w-8 sm:h-8 mx-auto mb-2 text-amber-600" />
+              <p className={TEXT.kpi}>Portaria 671</p>
+              <p className={TEXT.small}>Relatórios fiscais</p>
             </Card>
-            <Card className="p-4 text-center">
-              <Printer className="w-8 h-8 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-bold">5 formatos</p>
-              <p className="text-sm text-muted-foreground">PDF, CSV, AFD, AEJ, JSON</p>
+            <Card className={CARD_PADDING.compact + " text-center"}>
+              <Printer className="w-5 h-5 sm:w-8 sm:h-8 mx-auto mb-2 text-primary" />
+              <p className={TEXT.kpi}>5 formatos</p>
+              <p className={TEXT.small}>PDF, CSV, AFD, AEJ, JSON</p>
             </Card>
           </div>
         </TabsContent>

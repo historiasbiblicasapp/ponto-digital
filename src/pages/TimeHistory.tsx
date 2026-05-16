@@ -3,11 +3,13 @@ import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/integrations/supabase/client"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Clock, Download, CheckCircle2 } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ChevronLeft, ChevronRight, Clock, Download } from "lucide-react"
 import { toast } from "sonner"
 import { formatarTempoRegistro, formatarDataRegistro, calcularHorasTrabalhadas } from "@/integrations/supabase/ponto-digital"
 import type { RegistroPonto } from "@/integrations/supabase/ponto-digital"
 import { obterRegistrosPorMes } from "@/lib/ponto-utils"
+import { STACK, CARD_PADDING, TEXT, FLEX, GRID } from "@/lib/design-system"
 
 const TimeHistory = () => {
   const { user } = useAuth()
@@ -60,15 +62,15 @@ const TimeHistory = () => {
   const dias = Object.keys(registros).sort().reverse()
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={mesAnterior}>
-            <ChevronLeft className="w-4 h-4" />
+    <div className={STACK.page}>
+      <div className={FLEX.between}>
+        <div className={FLEX.center}>
+          <Button variant="outline" size="icon" onClick={mesAnterior} className="w-8 h-8 sm:w-9 sm:h-9">
+            <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
-          <h2 className="text-xl font-bold capitalize">{nomeMes}</h2>
-          <Button variant="outline" size="icon" onClick={proximoMes}>
-            <ChevronRight className="w-4 h-4" />
+          <h2 className="text-base sm:text-xl font-bold capitalize">{nomeMes}</h2>
+          <Button variant="outline" size="icon" onClick={proximoMes} className="w-8 h-8 sm:w-9 sm:h-9">
+            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
         </div>
         <Button variant="outline" size="sm" onClick={handleExportPDF}>
@@ -78,31 +80,43 @@ const TimeHistory = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <div className={STACK.tight}>
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className={CARD_PADDING.standard}>
+              <Skeleton className="h-5 w-48 mb-3" />
+              <div className={GRID.stat4}>
+                <Skeleton className="h-12" />
+                <Skeleton className="h-12" />
+                <Skeleton className="h-12" />
+                <Skeleton className="h-12" />
+              </div>
+            </Card>
+          ))}
+        </div>
       ) : dias.length === 0 ? (
-        <Card className="p-12 text-center text-muted-foreground">
-          <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p className="text-lg">Nenhum registro neste mês</p>
+        <Card className="p-8 sm:p-12 text-center text-muted-foreground">
+          <Clock className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-4 opacity-50" />
+          <p className="text-base sm:text-lg">Nenhum registro neste mês</p>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className={STACK.tight}>
           {dias.map((dia) => {
             const registrosDia = registros[dia]
             const horas = calcularHorasTrabalhadas(registrosDia)
             return (
-              <Card key={dia} className="p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
+              <Card key={dia} className={`${CARD_PADDING.standard} hover:shadow-md transition-shadow`}>
+                <div className={FLEX.betweenNowrap + " mb-3"}>
                   <div>
-                    <p className="font-semibold text-lg">
+                    <p className="font-semibold text-sm sm:text-base">
                       {new Date(dia + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Total</p>
-                    <p className="text-lg font-bold font-mono">{horas}h</p>
+                  <div className="text-right shrink-0">
+                    <p className={TEXT.small}>Total</p>
+                    <p className="text-base sm:text-lg font-bold font-mono">{horas}h</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {registrosDia.map((r) => {
                     const tipoLabel =
                       r.tipo === 'entrada' ? 'Entrada' :
@@ -112,8 +126,8 @@ const TimeHistory = () => {
                       r.tipo === 'extra_inicio' ? 'Extra I' : 'Extra F'
                     return (
                       <div key={r.id} className="bg-muted rounded-lg p-2 text-center">
-                        <p className="text-xs text-muted-foreground">{tipoLabel}</p>
-                        <p className="text-sm font-mono font-bold">{formatarTempoRegistro(r.data_hora)}</p>
+                        <p className={TEXT.small}>{tipoLabel}</p>
+                        <p className="text-xs sm:text-sm font-mono font-bold">{formatarTempoRegistro(r.data_hora)}</p>
                       </div>
                     )
                   })}

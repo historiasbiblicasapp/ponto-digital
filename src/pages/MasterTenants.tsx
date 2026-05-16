@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +13,7 @@ import { toast } from "sonner"
 import { Plus, Pencil, Users, Building2, Search } from "lucide-react"
 import type { Tenant } from "@/integrations/supabase/multi-tenant"
 import { PLANOS_SAAS } from "@/integrations/supabase/ponto-digital"
+import { STACK, CARD_PADDING, TEXT, FLEX, GRID, DIALOG, BUTTON } from "@/lib/design-system"
 
 const MasterTenants = () => {
   const queryClient = useQueryClient()
@@ -100,58 +102,60 @@ const MasterTenants = () => {
   )
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={STACK.page}>
+      <div className={FLEX.between}>
         <div>
-          <h1 className="text-3xl font-bold">Empresas</h1>
-          <p className="text-muted-foreground">{tenants.length} empresas cadastradas</p>
+          <h1 className={TEXT.pageTitle}>Empresas</h1>
+          <p className={TEXT.body}>{tenants.length} empresas cadastradas</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className={BUTTON.primary}>
               <Plus className="w-4 h-4 mr-2" />
               Nova Empresa
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogContent className={DIALOG.content}>
+            <DialogHeader className={DIALOG.header}>
               <DialogTitle>Nova Empresa</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 space-y-2">
-                <Label>Nome *</Label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({
-                    ...form,
-                    name: e.target.value,
-                    slug: generateSlug(e.target.value),
-                    nome_fantasia: e.target.value,
-                  })}
-                />
+            <div className={GRID.form2}>
+              <div className="col-span-1 sm:col-span-2">
+                <div className={STACK.tight}>
+                  <Label className={TEXT.label}>Nome *</Label>
+                  <Input
+                    value={form.name}
+                    onChange={(e) => setForm({
+                      ...form,
+                      name: e.target.value,
+                      slug: generateSlug(e.target.value),
+                      nome_fantasia: e.target.value,
+                    })}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Slug *</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Slug *</Label>
                 <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
               </div>
-              <div className="space-y-2">
-                <Label>CNPJ</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>CNPJ</Label>
                 <Input value={form.cnpj} onChange={(e) => setForm({ ...form, cnpj: e.target.value })} />
               </div>
-              <div className="space-y-2">
-                <Label>Razão Social</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Razão Social</Label>
                 <Input value={form.razao_social} onChange={(e) => setForm({ ...form, razao_social: e.target.value })} />
               </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Email</Label>
                 <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
-              <div className="space-y-2">
-                <Label>Telefone</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Telefone</Label>
                 <Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} />
               </div>
-              <div className="space-y-2">
-                <Label>Plano</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Plano</Label>
                 <Select value={form.plano} onValueChange={(v) => {
                   const plano = PLANOS_SAAS.find(p => p.id === v)
                   setForm({ ...form, plano: v, limite_funcionarios: plano?.limite_funcionarios || 10 })
@@ -168,8 +172,8 @@ const MasterTenants = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Limite Funcionários</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Limite Funcionários</Label>
                 <Input
                   type="number"
                   value={form.limite_funcionarios}
@@ -199,36 +203,48 @@ const MasterTenants = () => {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <div className={GRID.cards3}>
+          {[1, 2, 3].map(i => (
+            <Card key={i}>
+              <CardHeader className="pb-3">
+                <Skeleton className="h-10 w-10 rounded-lg" />
+                <Skeleton className="h-5 w-32 ml-3" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-3 w-1/2" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className={GRID.cards3}>
           {filtered.map((t) => (
             <Card key={t.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg"
-                      style={{ backgroundColor: t.primary_color || "#16a34a" }}
-                    >
-                      {(t.nome_fantasia || t.name).charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">{t.nome_fantasia || t.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{t.razao_social || t.slug}</p>
-                    </div>
+                <div className={FLEX.start}>
+                  <div
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm sm:text-lg shrink-0"
+                    style={{ backgroundColor: t.primary_color || "#16a34a" }}
+                  >
+                    {(t.nome_fantasia || t.name).charAt(0).toUpperCase()}
                   </div>
-                  <Badge variant="outline" className={t.active ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-sm sm:text-base truncate">{t.nome_fantasia || t.name}</CardTitle>
+                    <p className={TEXT.small + " truncate"}>{t.razao_social || t.slug}</p>
+                  </div>
+                  <Badge variant="outline" className={t.active ? "bg-green-50 text-green-700 shrink-0" : "bg-red-50 text-red-700 shrink-0"}>
                     {t.active ? "Ativo" : "Inativo"}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 text-sm">
+                <div className={STACK.tight + " text-xs sm:text-sm"}>
                   {t.cnpj && <p>CNPJ: {t.cnpj}</p>}
                   <p>Plano: {PLANOS_SAAS.find(p => p.id === t.plano)?.nome || t.plano || "Básico"}</p>
                   <p>Limite: {t.limite_funcionarios} funcionários</p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className={TEXT.small}>
                     Criado em {new Date(t.created_at).toLocaleDateString('pt-BR')}
                   </p>
                 </div>

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Users, Building2, TrendingUp, DollarSign, Activity } from "lucide-react"
 import type { Tenant } from "@/integrations/supabase/multi-tenant"
 import { PLANOS_SAAS } from "@/integrations/supabase/ponto-digital"
+import { STACK, CARD_PADDING, TEXT, FLEX, TABLE, GRID } from "@/lib/design-system"
 
 const MasterDashboard = () => {
   const [tenants, setTenants] = useState<Tenant[]>([])
@@ -81,70 +82,68 @@ const MasterDashboard = () => {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className={STACK.page}>
       <div>
-        <h1 className="text-3xl font-bold">Painel Master</h1>
-        <p className="text-muted-foreground">Visão geral do sistema Ponto Digital BM</p>
+        <h1 className={TEXT.pageTitle}>Painel Master</h1>
+        <p className={TEXT.body}>Visão geral do sistema Ponto Digital BM</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={GRID.stat4}>
         {stats.map((stat) => (
-          <Card key={stat.title} className="p-6">
-            <div className="flex items-start justify-between">
+          <Card key={stat.title} className={CARD_PADDING.standard}>
+            <div className={FLEX.between}>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                <p className="text-3xl font-bold mt-1">{stat.value}</p>
+                <p className={TEXT.label}>{stat.title}</p>
+                <p className={TEXT.kpi + " mt-1"}>{stat.value}</p>
                 {stat.total !== undefined && (
-                  <p className="text-xs text-muted-foreground mt-1">de {stat.total} total</p>
+                  <p className={TEXT.small + " mt-1"}>de {stat.total} total</p>
                 )}
               </div>
-              <div className={`p-3 rounded-lg ${stat.bg}`}>
-                <stat.icon className={`w-6 h-6 ${stat.cor}`} />
+              <div className={`p-2 sm:p-3 rounded-lg ${stat.bg} shrink-0`}>
+                <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.cor}`} />
               </div>
             </div>
           </Card>
         ))}
       </div>
 
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Empresas</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+      <Card className={CARD_PADDING.standard}>
+        <h2 className={TEXT.sectionTitle + " mb-4"}>Empresas</h2>
+        <div className={TABLE.wrapper}>
+          <table className={TABLE.table}>
             <thead>
               <tr className="border-b text-left">
-                <th className="pb-3 text-sm font-medium text-muted-foreground">Empresa</th>
-                <th className="pb-3 text-sm font-medium text-muted-foreground">CNPJ</th>
-                <th className="pb-3 text-sm font-medium text-muted-foreground">Plano</th>
-                <th className="pb-3 text-sm font-medium text-muted-foreground">Limite</th>
-                <th className="pb-3 text-sm font-medium text-muted-foreground">Status</th>
-                <th className="pb-3 text-sm font-medium text-muted-foreground">Desde</th>
+                <th className={TABLE.th}>Empresa</th>
+                <th className={TABLE.th}>CNPJ</th>
+                <th className={TABLE.th}>Plano</th>
+                <th className={TABLE.th}>Limite</th>
+                <th className={TABLE.th}>Status</th>
+                <th className={TABLE.th}>Desde</th>
               </tr>
             </thead>
             <tbody>
               {tenants.map((t) => (
-                <tr key={t.id} className="border-b last:border-0 hover:bg-muted/50">
-                  <td className="py-3">
-                    <p className="font-medium">{t.nome_fantasia || t.name}</p>
-                    <p className="text-sm text-muted-foreground">{t.razao_social || "-"}</p>
+                <tr key={t.id} className={`border-b last:border-0 hover:bg-muted/50 ${TABLE.row}`}>
+                  <td className={TABLE.td} data-label="Empresa">
+                    <p className="font-medium text-sm">{t.nome_fantasia || t.name}</p>
+                    <p className={TEXT.small}>{t.razao_social || "-"}</p>
                   </td>
-                  <td className="py-3 text-sm">{t.cnpj || "-"}</td>
-                  <td className="py-3">
-                    <Badge variant="outline">
+                  <td className={TABLE.td} data-label="CNPJ"><span className={TEXT.body}>{t.cnpj || "-"}</span></td>
+                  <td className={TABLE.td} data-label="Plano">
+                    <Badge variant="outline" className="text-xs">
                       {PLANOS_SAAS.find(p => p.id === t.plano)?.nome || t.plano || "Básico"}
                     </Badge>
                   </td>
-                  <td className="py-3 text-sm">{t.limite_funcionarios} func.</td>
-                  <td className="py-3">
+                  <td className={TABLE.td} data-label="Limite"><span className={TEXT.body}>{t.limite_funcionarios} func.</span></td>
+                  <td className={TABLE.td} data-label="Status">
                     <Badge
                       variant="outline"
-                      className={t.active ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}
+                      className={t.active ? "bg-green-50 text-green-700 text-xs" : "bg-red-50 text-red-700 text-xs"}
                     >
                       {t.active ? "Ativo" : "Inativo"}
                     </Badge>
                   </td>
-                  <td className="py-3 text-sm text-muted-foreground">
-                    {new Date(t.created_at).toLocaleDateString('pt-BR')}
-                  </td>
+                  <td className={TABLE.td} data-label="Desde"><span className={TEXT.small}>{new Date(t.created_at).toLocaleDateString('pt-BR')}</span></td>
                 </tr>
               ))}
               {tenants.length === 0 && (

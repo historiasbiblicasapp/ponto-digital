@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -13,6 +14,7 @@ import { toast } from "sonner"
 import { Plus, FileText, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react"
 import type { Ajuste } from "@/integrations/supabase/ponto-digital"
 import { TIPOS_AJUSTE } from "@/integrations/supabase/ponto-digital"
+import { STACK, CARD_PADDING, TEXT, FLEX, DIALOG } from "@/lib/design-system"
 
 const TimeRequests = () => {
   const { user, company } = useAuth()
@@ -99,26 +101,26 @@ const TimeRequests = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={STACK.page}>
+      <div className={FLEX.between}>
         <div>
-          <h1 className="text-2xl font-bold">Solicitações</h1>
-          <p className="text-muted-foreground">Ajustes de ponto e justificativas</p>
+          <h1 className={TEXT.pageTitle}>Solicitações</h1>
+          <p className={TEXT.body}>Ajustes de ponto e justificativas</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button size="sm">
               <Plus className="w-4 h-4 mr-2" />
               Nova Solicitação
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
+          <DialogContent className={DIALOG.content}>
+            <DialogHeader className={DIALOG.header}>
               <DialogTitle>Nova Solicitação</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Tipo</Label>
+            <div className={STACK.form}>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Tipo</Label>
                 <Select
                   value={form.tipo}
                   onValueChange={(v) => setForm({ ...form, tipo: v })}
@@ -135,16 +137,16 @@ const TimeRequests = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Data de Referência</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Data de Referência</Label>
                 <Input
                   type="date"
                   value={form.data_referencia}
                   onChange={(e) => setForm({ ...form, data_referencia: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Justificativa</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Justificativa</Label>
                 <Textarea
                   placeholder="Descreva o motivo da solicitação..."
                   value={form.justificativa}
@@ -165,35 +167,42 @@ const TimeRequests = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <div className={STACK.tight}>
+          {[1, 2].map(i => (
+            <Card key={i} className={CARD_PADDING.standard}>
+              <Skeleton className="h-5 w-40 mb-2" />
+              <Skeleton className="h-4 w-full" />
+            </Card>
+          ))}
+        </div>
       ) : ajustes.length === 0 ? (
-        <Card className="p-12 text-center text-muted-foreground">
-          <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p className="text-lg">Nenhuma solicitação encontrada</p>
-          <p className="text-sm mt-2">Clique em "Nova Solicitação" para criar</p>
+        <Card className="p-8 sm:p-12 text-center text-muted-foreground">
+          <FileText className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-4 opacity-50" />
+          <p className="text-base sm:text-lg">Nenhuma solicitação encontrada</p>
+          <p className={TEXT.body + " mt-2"}>Clique em "Nova Solicitação" para criar</p>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className={STACK.tight}>
           {ajustes.map((a) => (
-            <Card key={a.id} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">{tipoLabel(a.tipo)}</span>
+            <Card key={a.id} className={CARD_PADDING.standard}>
+              <div className={FLEX.start}>
+                <div className={STACK.tight + " min-w-0 flex-1"}>
+                  <div className={FLEX.center + " flex-wrap"}>
+                    <span className="font-semibold text-sm sm:text-base">{tipoLabel(a.tipo)}</span>
                     {statusBadge(a.status)}
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className={TEXT.body}>
                     Data: {new Date(a.data_referencia + 'T12:00:00').toLocaleDateString('pt-BR')}
                   </p>
-                  <p className="text-sm mt-2">{a.justificativa}</p>
+                  <p className={TEXT.body + " mt-2"}>{a.justificativa}</p>
                   {a.observacao_rh && (
-                    <div className="mt-2 p-2 bg-muted rounded text-sm">
+                    <div className="mt-2 p-2 bg-muted rounded text-xs sm:text-sm">
                       <span className="font-medium">RH: </span>
                       {a.observacao_rh}
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className={TEXT.small + " shrink-0"}>
                   {new Date(a.created_at).toLocaleDateString('pt-BR')}
                 </p>
               </div>

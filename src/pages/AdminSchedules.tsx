@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import { Plus, Pencil, Clock, Calendar, Users, Trash2 } from "lucide-react"
 import type { Escala, Funcionario } from "@/integrations/supabase/ponto-digital"
 import { TIPOS_ESCALA } from "@/integrations/supabase/ponto-digital"
+import { STACK, CARD_PADDING, GRID, TEXT, FLEX, DIALOG, BUTTON } from "@/lib/design-system"
 
 const AdminSchedules = () => {
   const { company } = useAuth()
@@ -120,90 +122,94 @@ const AdminSchedules = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={STACK.page}>
+      <div className={FLEX.between}>
         <div>
-          <h1 className="text-3xl font-bold">Escalas</h1>
-          <p className="text-muted-foreground">Gerencie turnos e jornadas</p>
+          <h1 className={TEXT.pageTitle}>Escalas</h1>
+          <p className={TEXT.body}>Gerencie turnos e jornadas</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           if (!open) { setEditing(null) }
           setDialogOpen(open)
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className={BUTTON.primary}>
               <Plus className="w-4 h-4 mr-2" />
               Nova Escala
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
+          <DialogContent className={DIALOG.content}>
+            <DialogHeader className={DIALOG.header}>
               <DialogTitle>{editing ? "Editar Escala" : "Nova Escala"}</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 space-y-2">
-                <Label>Nome da Escala</Label>
-                <Input
-                  value={form.nome}
-                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                  placeholder="Ex: Administrativo"
-                />
+            <div className={GRID.form2}>
+              <div className="col-span-1 sm:col-span-2">
+                <div className={STACK.tight}>
+                  <Label className={TEXT.label}>Nome da Escala</Label>
+                  <Input
+                    value={form.nome}
+                    onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                    placeholder="Ex: Administrativo"
+                  />
+                </div>
               </div>
-              <div className="col-span-2 space-y-2">
-                <Label>Tipo</Label>
-                <Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIPOS_ESCALA.map((te) => (
-                      <SelectItem key={te.value} value={te.value}>{te.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="col-span-1 sm:col-span-2">
+                <div className={STACK.tight}>
+                  <Label className={TEXT.label}>Tipo</Label>
+                  <Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIPOS_ESCALA.map((te) => (
+                        <SelectItem key={te.value} value={te.value}>{te.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Entrada</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Entrada</Label>
                 <Input
                   type="time"
                   value={form.hora_entrada}
                   onChange={(e) => setForm({ ...form, hora_entrada: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Saída Almoço</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Saída Almoço</Label>
                 <Input
                   type="time"
                   value={form.hora_saida_almoco}
                   onChange={(e) => setForm({ ...form, hora_saida_almoco: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Retorno Almoço</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Retorno Almoço</Label>
                 <Input
                   type="time"
                   value={form.hora_retorno_almoco}
                   onChange={(e) => setForm({ ...form, hora_retorno_almoco: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Saída</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Saída</Label>
                 <Input
                   type="time"
                   value={form.hora_saida}
                   onChange={(e) => setForm({ ...form, hora_saida: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Tolerância (min)</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Tolerância (min)</Label>
                 <Input
                   type="number"
                   value={form.tolerancia_minutos}
                   onChange={(e) => setForm({ ...form, tolerancia_minutos: Number(e.target.value) })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Carga Diária (h)</Label>
+              <div className={STACK.tight}>
+                <Label className={TEXT.label}>Carga Diária (h)</Label>
                 <Input
                   type="number"
                   value={form.carga_horaria_diaria}
@@ -219,57 +225,69 @@ const AdminSchedules = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <div className={GRID.cards3}>
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className={CARD_PADDING.standard}>
+              <Skeleton className="h-5 w-32 mb-3" />
+              <Skeleton className="h-4 w-24 mb-2" />
+              <Skeleton className="h-3 w-full mb-1" />
+              <Skeleton className="h-3 w-3/4 mb-1" />
+              <Skeleton className="h-3 w-2/3" />
+            </Card>
+          ))}
+        </div>
       ) : escalas.length === 0 ? (
-        <Card className="p-12 text-center text-muted-foreground">
-          <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p className="text-lg">Nenhuma escala cadastrada</p>
-          <p className="text-sm mt-2">Crie escalas para definir turnos e jornadas</p>
+        <Card className="p-8 sm:p-12 text-center text-muted-foreground">
+          <Calendar className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-4 opacity-50" />
+          <p className="text-base sm:text-lg">Nenhuma escala cadastrada</p>
+          <p className={TEXT.body + " mt-2"}>Crie escalas para definir turnos e jornadas</p>
         </Card>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className={GRID.cards3}>
           {escalas.map((e) => (
-            <Card key={e.id} className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold text-lg">{e.nome}</h3>
-                  <Badge variant="outline" className="mt-1">
+            <Card key={e.id} className={CARD_PADDING.standard}>
+              <div className={FLEX.betweenNowrap + " mb-4"}>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm sm:text-base truncate">{e.nome}</h3>
+                  <Badge variant="outline" className="mt-1 text-xs">
                     {TIPOS_ESCALA.find(te => te.value === e.tipo)?.label || e.tipo}
                   </Badge>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => handleEdit(e)}>
+                <Button variant="ghost" size="sm" className="shrink-0" onClick={() => handleEdit(e)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
               </div>
 
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
+              <div className={STACK.tight + " text-xs sm:text-sm"}>
+                <div className={FLEX.betweenNowrap}>
                   <span className="text-muted-foreground">Entrada</span>
                   <span className="font-mono font-bold">{e.hora_entrada.slice(0, 5)}</span>
                 </div>
                 {e.hora_saida_almoco && (
-                  <div className="flex justify-between">
+                  <div className={FLEX.betweenNowrap}>
                     <span className="text-muted-foreground">Saída Almoço</span>
                     <span className="font-mono font-bold">{e.hora_saida_almoco.slice(0, 5)}</span>
                   </div>
                 )}
                 {e.hora_retorno_almoco && (
-                  <div className="flex justify-between">
+                  <div className={FLEX.betweenNowrap}>
                     <span className="text-muted-foreground">Retorno Almoço</span>
                     <span className="font-mono font-bold">{e.hora_retorno_almoco.slice(0, 5)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
+                <div className={FLEX.betweenNowrap}>
                   <span className="text-muted-foreground">Saída</span>
                   <span className="font-mono font-bold">{e.hora_saida.slice(0, 5)}</span>
                 </div>
-                <div className="border-t pt-2 mt-2 flex justify-between">
-                  <span className="text-muted-foreground">Carga Diária</span>
-                  <span className="font-bold">{e.carga_horaria_diaria}h</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tolerância</span>
-                  <span>{e.tolerancia_minutos}min</span>
+                <div className="border-t border-glass-border pt-2 mt-2">
+                  <div className={FLEX.betweenNowrap}>
+                    <span className="text-muted-foreground">Carga Diária</span>
+                    <span className="font-bold">{e.carga_horaria_diaria}h</span>
+                  </div>
+                  <div className={FLEX.betweenNowrap}>
+                    <span className="text-muted-foreground">Tolerância</span>
+                    <span>{e.tolerancia_minutos}min</span>
+                  </div>
                 </div>
               </div>
             </Card>
