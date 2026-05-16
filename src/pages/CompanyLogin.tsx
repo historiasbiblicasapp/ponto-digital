@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Clock, Building2, ArrowRight, Shield, Sparkles } from "lucide-react"
+import { Clock, Building2, ArrowRight, Shield, Sparkles, Copy, Check } from "lucide-react"
 import type { Tenant } from "@/integrations/supabase/multi-tenant"
 
 const CompanyLogin = () => {
@@ -18,6 +18,7 @@ const CompanyLogin = () => {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [companies, setCompanies] = useState<Tenant[]>([])
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     loadCompanies()
@@ -43,17 +44,23 @@ const CompanyLogin = () => {
     } finally { setLoading(false) }
   }
 
+  const selectAdminEmail = (slug: string) => {
+    setEmail(`${slug}@admin.pontodigital.com`)
+    setPassword("admin123")
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+    toast.success("Copiado!")
+  }
+
   return (
     <div className="min-h-screen mesh-gradient flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-neon-blue/5 blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-96 opacity-[0.02]">
-          <div className="w-full h-full" style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, hsl(var(--primary)), transparent 50%), radial-gradient(circle at 75% 75%, hsl(var(--ring)), transparent 50%)`
-          }} />
-        </div>
       </div>
 
       <motion.div
@@ -91,6 +98,62 @@ const CompanyLogin = () => {
           </CardHeader>
 
           <CardContent className="space-y-6 px-8 pb-10">
+            {/* Company list */}
+            {companies.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider text-center">
+                  Empresas disponíveis
+                </p>
+                <div className="space-y-2">
+                  {companies.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        if (c.email && c.email.includes("@admin.pontodigital.com")) {
+                          selectAdminEmail(c.slug)
+                        }
+                      }}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl bg-glass border border-glass-border hover:border-primary/30 transition-all text-left group"
+                    >
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0"
+                        style={{ backgroundColor: c.primary_color || "#16a34a" }}
+                      >
+                        {(c.nome_fantasia || c.name).charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{c.nome_fantasia || c.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          admin: {c.slug}@admin.pontodigital.com
+                        </p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          copyToClipboard(`${c.slug}@admin.pontodigital.com`)
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-glass transition-colors shrink-0"
+                        title="Copiar email admin"
+                      >
+                        {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+                      </button>
+                    </button>
+                  ))}
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-glass-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-3 text-muted-foreground">faça login</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Email</Label>
@@ -135,15 +198,6 @@ const CompanyLogin = () => {
               </Button>
             </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-glass-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-3 text-muted-foreground">ou</span>
-              </div>
-            </div>
-
             <Button
               variant="outline"
               className="w-full h-12 text-base gap-3 bg-glass border-glass-border hover:bg-glass/80 transition-all"
@@ -152,14 +206,9 @@ const CompanyLogin = () => {
               <Building2 className="w-5 h-5" />
               Modo Tablet (Kiosk)
             </Button>
-
-            <p className="text-center text-sm text-muted-foreground">
-              Não tem conta? <span className="text-primary font-medium">Fale com seu RH</span>
-            </p>
           </CardContent>
         </Card>
 
-        {/* Footer */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -47,31 +47,20 @@ const MasterTenants = () => {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.from("tenants").insert({
-        name: form.name, slug: form.slug,
-        razao_social: form.razao_social || null,
-        nome_fantasia: form.nome_fantasia || null,
-        cnpj: form.cnpj || null, email: form.email || null,
-        telefone: form.telefone || null, plano: form.plano,
-        limite_funcionarios: form.limite_funcionarios,
-        active: form.active, primary_color: form.primary_color,
-      }).select().single()
-      if (error) throw error
-
-      const adminEmail = `${form.slug}@admin.pontodigital.com`
-      const adminPassword = "admin123"
-      const { error: authError } = await supabase.auth.signUp({
-        email: adminEmail, password: adminPassword,
-        options: { data: { tenant_id: data.id, role: "admin" } },
+      const { data, error } = await supabase.functions.invoke("create-tenant", {
+        body: {
+          name: form.name, slug: form.slug,
+          razao_social: form.razao_social || null,
+          nome_fantasia: form.nome_fantasia || null,
+          cnpj: form.cnpj || null, email: form.email || null,
+          telefone: form.telefone || null, plano: form.plano,
+          limite_funcionarios: form.limite_funcionarios,
+          primary_color: form.primary_color,
+        },
       })
-      if (authError) throw authError
+      if (error) throw new Error(error.message)
 
-      const { error: linkError } = await supabase.from("tenant_users").insert({
-        tenant_id: data.id, email: adminEmail, role: "admin",
-      })
-      if (linkError) throw linkError
-
-      toast.success(`Empresa criada! Admin: ${adminEmail} / ${adminPassword}`)
+      toast.success(`Empresa criada! Admin: ${data.adminEmail} / ${data.adminPassword}`)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["master-tenants"] })
