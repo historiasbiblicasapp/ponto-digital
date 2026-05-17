@@ -2,20 +2,32 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-if (!import.meta.env.VITE_SUPABASE_URL) {
-  console.warn("[Supabase] VITE_SUPABASE_URL não definida. Verifique o arquivo .env ou variáveis de ambiente no Vercel.");
+const rawUrl = import.meta.env.VITE_SUPABASE_URL || "";
+const rawKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
+
+if (!rawUrl) {
+  console.warn("[Supabase] VITE_SUPABASE_URL não definida no Vercel.");
 }
-if (!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
-  console.warn("[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY não definida. Verifique o arquivo .env ou variáveis de ambiente no Vercel.");
+if (!rawKey) {
+  console.warn("[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY não definida no Vercel.");
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "http://127.0.0.1:54321";
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
+// Validate URL
+let SUPABASE_URL = rawUrl.trim();
+try {
+  if (SUPABASE_URL) new URL(SUPABASE_URL);
+} catch {
+  console.warn(`[Supabase] URL inválida: "${SUPABASE_URL}". Usando fallback local.`);
+  SUPABASE_URL = "";
+}
+
+const FINAL_URL = SUPABASE_URL || "http://127.0.0.1:54321";
+const FINAL_KEY = rawKey.trim() || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+export const supabase = createClient<Database>(FINAL_URL, FINAL_KEY, {
   auth: {
     storage: localStorage,
     persistSession: true,
