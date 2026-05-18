@@ -2,8 +2,11 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const rawUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const rawKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
+const rawUrl = (import.meta.env.VITE_SUPABASE_URL || "").trim();
+const rawKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "").trim();
+
+console.log("[Supabase] VITE_SUPABASE_URL:", rawUrl ? rawUrl.substring(0, 30) + "..." : "(vazio)");
+console.log("[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY:", rawKey ? rawKey.substring(0, 20) + "..." : "(vazio)");
 
 if (!rawUrl) {
   console.warn("[Supabase] VITE_SUPABASE_URL não definida no Vercel.");
