@@ -2,30 +2,24 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+// Try env vars first, fall back to hardcoded cloud project
 const rawUrl = (import.meta.env.VITE_SUPABASE_URL || "").trim();
 const rawKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "").trim();
 
-console.log("[Supabase] VITE_SUPABASE_URL:", rawUrl ? rawUrl.substring(0, 30) + "..." : "(vazio)");
-console.log("[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY:", rawKey ? rawKey.substring(0, 20) + "..." : "(vazio)");
+// Supabase Cloud project credentials (anon key is public)
+const CLOUD_URL = "https://svvbfshcpetazsrgnyac.supabase.co";
+const CLOUD_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2dmJmc2hjcGV0YXpzcmdueWFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzMxNDMsImV4cCI6MjA5NDQ0OTE0M30.7cgDQjvVClYYpqaIiU7acrM2_sGKFsqmKndvcw4cyHI";
+
+let FINAL_URL = rawUrl;
+let FINAL_KEY = rawKey;
 
 if (!rawUrl) {
-  console.warn("[Supabase] VITE_SUPABASE_URL não definida no Vercel.");
+  console.log("[Supabase] Usando credenciais cloud (nenhuma VITE_SUPABASE_URL configurada)");
+  FINAL_URL = CLOUD_URL;
 }
 if (!rawKey) {
-  console.warn("[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY não definida no Vercel.");
+  FINAL_KEY = CLOUD_KEY;
 }
-
-// Validate URL
-let SUPABASE_URL = rawUrl.trim();
-try {
-  if (SUPABASE_URL) new URL(SUPABASE_URL);
-} catch {
-  console.warn(`[Supabase] URL inválida: "${SUPABASE_URL}". Usando fallback local.`);
-  SUPABASE_URL = "";
-}
-
-const FINAL_URL = SUPABASE_URL || "http://127.0.0.1:54321";
-const FINAL_KEY = rawKey.trim() || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
