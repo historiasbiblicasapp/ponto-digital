@@ -47,6 +47,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return
     }
 
+    if (tenantUser.role === 'master') {
+      setCompany(null)
+      document.title = "Ponto Digital - Master"
+      setUser({
+        id: session.user.id,
+        email,
+        role: 'master',
+        tenant_id: null,
+        tenant_name: null,
+        tenant_slug: 'master',
+        funcionario: null,
+      })
+      return
+    }
+
     const { data: tenantData } = await supabase
       .from("tenants")
       .select("*")
@@ -60,17 +75,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     let funcionarioData = null
-    if (tenantUser.role !== 'master') {
-      const { data: func } = await supabase
-        .from("funcionarios")
-        .select("id, nome, matricula, cargo, setor, foto_url, filial_id")
-        .eq("empresa_id", tenantData.id)
-        .eq("email", email)
-        .eq("ativo", true)
-        .maybeSingle()
+    const { data: func } = await supabase
+      .from("funcionarios")
+      .select("id, nome, matricula, cargo, setor, foto_url, filial_id")
+      .eq("empresa_id", tenantData.id)
+      .eq("email", email)
+      .eq("ativo", true)
+      .maybeSingle()
 
-      funcionarioData = func
-    }
+    funcionarioData = func
 
     setCompany(tenantData)
     document.title = tenantData.nome_fantasia || tenantData.name
