@@ -47,20 +47,22 @@ const MasterTenants = () => {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("create-tenant", {
-        body: {
-          name: form.name, slug: form.slug,
-          razao_social: form.razao_social || null,
-          nome_fantasia: form.nome_fantasia || null,
-          cnpj: form.cnpj || null, email: form.email || null,
-          telefone: form.telefone || null, plano: form.plano,
-          limite_funcionarios: form.limite_funcionarios,
-          primary_color: form.primary_color,
-        },
-      })
-      if (error) throw new Error(error.message)
+      const { data: tenant, error } = await supabase.from("tenants").insert({
+        name: form.name, slug: form.slug,
+        razao_social: form.razao_social || null,
+        nome_fantasia: form.nome_fantasia || null,
+        cnpj: form.cnpj || null, email: form.email || null,
+        telefone: form.telefone || null, plano: form.plano,
+        limite_funcionarios: form.limite_funcionarios,
+        active: form.active, primary_color: form.primary_color,
+      }).select().single()
+      if (error) throw error
 
-      toast.success(`Empresa criada! Admin: ${data.adminEmail} / ${data.adminPassword}`)
+      const adminEmail = form.email || `${form.slug}@admin.pontodigital.com`
+      toast.success(`Empresa "${tenant.name}" criada!`, {
+        description: `Admin: ${adminEmail} / senha: admin123\nCrie o usuário em Supabase > Auth > Users se necessário.`,
+        duration: 10000,
+      })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["master-tenants"] })

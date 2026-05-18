@@ -17,8 +17,13 @@ const AdminSidebar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleSignOut = async () => {
-    await signOut()
+    try {
+      await signOut()
+    } catch (e) {
+      console.error("signOut error:", e)
+    }
     navigate("/")
+    window.location.reload()
   }
 
   const adminNavItems = [
