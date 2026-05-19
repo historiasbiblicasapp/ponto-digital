@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, Building2, Search, Users, ToggleLeft, ToggleRight, AlertTriangle } from "lucide-react"
+import { Plus, Pencil, Trash2, Building2, Search, Users, ToggleLeft, ToggleRight, AlertTriangle, Copy, Check, ExternalLink } from "lucide-react"
 import type { Tenant } from "@/integrations/supabase/multi-tenant"
 import { PLANOS_SAAS } from "@/integrations/supabase/ponto-digital"
 import { STACK, CARD_PADDING, TEXT, FLEX, GRID, DIALOG, BUTTON } from "@/lib/design-system"
@@ -26,6 +26,10 @@ const MasterTenants = () => {
     cnpj: "", email: "", telefone: "", plano: "basico",
     limite_funcionarios: 10, active: true, primary_color: "#16a34a",
   })
+
+  // Success dialog
+  const [successData, setSuccessData] = useState<{ name: string; slug: string; email: string; password: string; url: string } | null>(null)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   // Edit dialog
   const [editOpen, setEditOpen] = useState(false)
@@ -45,6 +49,12 @@ const MasterTenants = () => {
     },
   })
 
+  const copyToClipboard = (label: string, text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedField(label)
+    setTimeout(() => setCopiedField(null), 2000)
+  }
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const { data: tenant, error } = await supabase.from("tenants").insert({
@@ -59,9 +69,12 @@ const MasterTenants = () => {
       if (error) throw error
 
       const adminEmail = form.email || `${form.slug}@admin.pontodigital.com`
-      toast.success(`Empresa "${tenant.name}" criada!`, {
-        description: `Admin: ${adminEmail} / senha: admin123\nCrie o usuário em Supabase > Auth > Users se necessário.`,
-        duration: 10000,
+      setSuccessData({
+        name: tenant.nome_fantasia || tenant.name,
+        slug: tenant.slug,
+        email: adminEmail,
+        password: "admin123",
+        url: `https://pontoeletronicoDigital.netlify.app`,
       })
     },
     onSuccess: () => {
@@ -164,7 +177,6 @@ const MasterTenants = () => {
                   <Input value={form.name} onChange={(e) => setForm({
                     ...form, name: e.target.value,
                     slug: generateSlug(e.target.value),
-                    nome_fantasia: e.target.value,
                   })} />
                 </div>
               </div>
@@ -298,7 +310,6 @@ const MasterTenants = () => {
                   <Input value={editForm.name} onChange={(e) => setEditForm({
                     ...editForm, name: e.target.value,
                     slug: generateSlug(e.target.value),
-                    nome_fantasia: e.target.value,
                   })} />
                 </div>
               </div>
@@ -350,6 +361,76 @@ const MasterTenants = () => {
           <Button className="w-full mt-4" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
             {updateMutation.isPending ? "Salvando..." : "Salvar Alterações"}
           </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog open={!!successData} onOpenChange={(open) => { if (!open) setSuccessData(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-green-500">
+              <Check className="w-5 h-5" /> Empresa Criada com Sucesso!
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              Os dados de acesso para <strong>{successData?.name}</strong>:
+            </DialogDescription>
+          </DialogHeader>
+          {successData && (
+            <div className="space-y-4">
+              <div className="bg-glass rounded-xl p-4 space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Link de acesso</span>
+                  <div className="flex items-center gap-2">
+                    <a href={successData.url} target="_blank" rel="noopener noreferrer"
+                      className="text-primary hover:underline text-xs truncate max-w-[200px]">
+                      {successData.url} <ExternalLink className="w-3 h-3 inline" />
+                    </a>
+                    <button onClick={() => copyToClipboard("url", successData.url)}
+                      className="p-1 rounded hover:bg-glass transition-colors">
+                      {copiedField === "url" ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Empresa</span>
+                  <span className="font-medium">{successData.name}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Email admin</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-xs">{successData.email}</span>
+                    <button onClick={() => copyToClipboard("email", successData.email)}
+                      className="p-1 rounded hover:bg-glass transition-colors">
+                      {copiedField === "email" ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Senha</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-xs font-mono">{successData.password}</span>
+                    <button onClick={() => copyToClipboard("senha", successData.password)}
+                      className="p-1 rounded hover:bg-glass transition-colors">
+                      {copiedField === "senha" ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => {
+                  copyToClipboard("all", `Link: ${successData.url}\nEmpresa: ${successData.name}\nAdmin: ${successData.email}\nSenha: ${successData.password}`)
+                  toast.success("Dados copiados!")
+                }}>
+                  <Copy className="w-4 h-4 mr-2" /> Copiar Tudo
+                </Button>
+                <Button className="flex-1" onClick={() => setSuccessData(null)}>
+                  OK
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
