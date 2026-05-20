@@ -23,6 +23,7 @@ const MasterLogin = () => {
       toast.success("Login realizado com sucesso!")
       setTimeout(() => navigate("/dashboard"), 100)
     } catch (err: any) {
+      console.error("[MasterLogin]", err)
       toast.error(err.message || "Erro ao autenticar")
     } finally {
       setLoading(false)

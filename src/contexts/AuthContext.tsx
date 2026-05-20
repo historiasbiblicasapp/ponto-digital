@@ -27,25 +27,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isEmployee = user?.role === 'user' || user?.role === 'admin'
 
   const fetchUserData = async (session: any) => {
-    if (!session?.user) {
-      setUser(null)
-      setCompany(null)
-      return
-    }
+    try {
+      if (!session?.user) {
+        setUser(null)
+        setCompany(null)
+        return
+      }
 
-    const email = session.user.email || ""
+      const email = session.user.email || ""
 
-    const { data: tenantUser } = await supabase
-      .from("tenant_users")
-      .select("*")
-      .eq("email", email)
-      .maybeSingle()
+      const { data: tenantUser, error: tuErr } = await supabase
+        .from("tenant_users")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle()
 
-    if (!tenantUser || !tenantUser.active) {
-      setUser(null)
-      setCompany(null)
-      return
-    }
+      if (tuErr) console.error("[Auth] tenant_users query error:", tuErr)
+      if (!tenantUser || !tenantUser.active) {
+        setUser(null)
+        setCompany(null)
+        return
+      }
 
     if (tenantUser.role === 'master') {
       setCompany(null)
@@ -97,6 +99,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       tenant_slug: tenantData.slug,
       funcionario: funcionarioData,
     })
+    } catch (err) {
+      console.error("[Auth] fetchUserData error:", err)
+      setUser(null)
+      setCompany(null)
+    }
   }
 
   useEffect(() => {
