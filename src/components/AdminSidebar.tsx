@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { NavLink, useNavigate, useLocation } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "@/contexts/AuthContext"
 import {
@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils"
 import { PulseDot } from "@/components/ui/glass-card"
 
 const AdminSidebar = () => {
-  const navigate = useNavigate()
   const location = useLocation()
   const { signOut, isMaster, company } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
@@ -22,8 +21,8 @@ const AdminSidebar = () => {
     } catch (e) {
       console.error("signOut error:", e)
     }
-    navigate("/")
-    window.location.reload()
+    localStorage.removeItem("supabase.auth.token")
+    window.location.href = "/"
   }
 
   const adminNavItems = [
