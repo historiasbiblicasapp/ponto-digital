@@ -70,18 +70,21 @@ const MasterTenants = () => {
       })
       if (error) throw new Error(error.message)
 
-      setSuccessData({
-        name: data.tenant.nome_fantasia || data.tenant.name,
-        slug: data.tenant.slug,
-        email: data.adminEmail,
-        password: data.adminPassword,
-        url: `https://pontoeletronicoDigital.netlify.app`,
-      })
+      return data
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["master-tenants"] })
       setCreateOpen(false)
       limparForm()
+      setTimeout(() => {
+        setSuccessData({
+          name: data.tenant.nome_fantasia || data.tenant.name,
+          slug: data.tenant.slug,
+          email: data.adminEmail,
+          password: data.adminPassword,
+          url: `https://pontoeletronicoDigital.netlify.app`,
+        })
+      }, 300)
     },
     onError: (err: any) => toast.error(err.message || "Erro ao criar"),
   })

@@ -1,7 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, x-client-info",
+}
+
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders, status: 204 })
+  }
+
   try {
     const { name, slug, razao_social, nome_fantasia, cnpj, email, telefone, plano, limite_funcionarios, primary_color } = await req.json()
 
@@ -27,7 +37,7 @@ serve(async (req) => {
       .single()
 
     if (tenantError) {
-      return new Response(JSON.stringify({ error: "Erro ao criar tenant: " + tenantError.message }), { status: 400 })
+      return new Response(JSON.stringify({ error: "Erro ao criar tenant: " + tenantError.message }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } })
     }
 
     const adminEmail = email || `${slug}@admin.pontodigital.com`
@@ -42,7 +52,7 @@ serve(async (req) => {
 
     if (authError) {
       await supabase.from("tenants").delete().eq("id", tenant.id)
-      return new Response(JSON.stringify({ error: "Erro ao criar usuário admin: " + authError.message }), { status: 400 })
+      return new Response(JSON.stringify({ error: "Erro ao criar usuário admin: " + authError.message }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } })
     }
 
     const { error: linkError } = await supabase.from("tenant_users").insert({
@@ -55,7 +65,7 @@ serve(async (req) => {
     if (linkError) {
       await supabase.auth.admin.deleteUser(authUser.user.id)
       await supabase.from("tenants").delete().eq("id", tenant.id)
-      return new Response(JSON.stringify({ error: "Erro ao vincular admin: " + linkError.message }), { status: 400 })
+      return new Response(JSON.stringify({ error: "Erro ao vincular admin: " + linkError.message }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } })
     }
 
     return new Response(JSON.stringify({
@@ -64,10 +74,10 @@ serve(async (req) => {
       adminPassword,
       message: `Empresa criada! Admin: ${adminEmail}`,
     }), {
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     })
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } })
   }
 })
