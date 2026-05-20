@@ -57,23 +57,24 @@ const MasterTenants = () => {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { data: tenant, error } = await supabase.from("tenants").insert({
-        name: form.name, slug: form.slug,
-        razao_social: form.razao_social || null,
-        nome_fantasia: form.nome_fantasia || null,
-        cnpj: form.cnpj || null, email: form.email || null,
-        telefone: form.telefone || null, plano: form.plano,
-        limite_funcionarios: form.limite_funcionarios,
-        active: form.active, primary_color: form.primary_color,
-      }).select().single()
-      if (error) throw error
+      const { data, error } = await supabase.functions.invoke("create-tenant", {
+        body: {
+          name: form.name, slug: form.slug,
+          razao_social: form.razao_social || null,
+          nome_fantasia: form.nome_fantasia || null,
+          cnpj: form.cnpj || null, email: form.email || null,
+          telefone: form.telefone || null, plano: form.plano,
+          limite_funcionarios: form.limite_funcionarios,
+          primary_color: form.primary_color,
+        },
+      })
+      if (error) throw new Error(error.message)
 
-      const adminEmail = form.email || `${form.slug}@admin.pontodigital.com`
       setSuccessData({
-        name: tenant.nome_fantasia || tenant.name,
-        slug: tenant.slug,
-        email: adminEmail,
-        password: "admin123",
+        name: data.tenant.nome_fantasia || data.tenant.name,
+        slug: data.tenant.slug,
+        email: data.adminEmail,
+        password: data.adminPassword,
         url: `https://pontoeletronicoDigital.netlify.app`,
       })
     },
