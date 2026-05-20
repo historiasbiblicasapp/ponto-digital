@@ -14,19 +14,19 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<ThemeContextType>({
     primaryColor: "#16a34a",
     secondaryColor: "#22c55e",
-    appName: "LF Vendas"
+    appName: "Ponto Digital BM"
   })
 
   useEffect(() => {
     if (user?.tenant_slug === "master") {
-      setTheme({ primaryColor: "#1e40af", secondaryColor: "#3b82f6", appName: "LF Vendas Admin" })
+      setTheme({ primaryColor: "#1e40af", secondaryColor: "#3b82f6", appName: "Ponto Digital BM - Master" })
       return
     }
 
     if (customization) {
       const primaryColor = customization.primary_color || "#16a34a"
       const secondaryColor = customization.secondary_color || "#22c55e"
-      const appName = customization.app_name || "LF Vendas"
+      const appName = customization.app_name || "Ponto Digital BM"
 
       setTheme({ primaryColor, secondaryColor, appName })
 
