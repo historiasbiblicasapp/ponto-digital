@@ -25,6 +25,7 @@ export type Database = {
           active: boolean
           primary_color: string | null
           max_sessions: number
+          usa_almoco: boolean
           created_at: string
         }
         Insert: {
@@ -42,6 +43,7 @@ export type Database = {
           active?: boolean
           primary_color?: string | null
           max_sessions?: number
+          usa_almoco?: boolean
           created_at?: string
         }
         Update: {
@@ -59,6 +61,7 @@ export type Database = {
           active?: boolean
           primary_color?: string | null
           max_sessions?: number
+          usa_almoco?: boolean
           created_at?: string
         }
         Relationships: []

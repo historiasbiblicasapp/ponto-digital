@@ -24,6 +24,7 @@ const KioskPage = () => {
   const [registroTipo, setRegistroTipo] = useState<TipoRegistro>("entrada")
   const [horarioAtual, setHorarioAtual] = useState(new Date())
   const [empresaId, setEmpresaId] = useState<string>("")
+  const [usaAlmocoKiosk, setUsaAlmocoKiosk] = useState(true)
   const [dispositivoId, setDispositivoId] = useState<string>("")
   const [mostrarQR, setMostrarQR] = useState(false)
   const [qrDataURL, setQrDataURL] = useState("")
@@ -61,12 +62,13 @@ const KioskPage = () => {
     if (!tenantSlug) {
       const { data: tenants } = await supabase
         .from("tenants")
-        .select("id, slug, nome_fantasia, name")
+        .select("id, slug, nome_fantasia, name, usa_almoco")
         .eq("active", true)
         .limit(1)
 
       if (tenants && tenants.length > 0) {
         setEmpresaId(tenants[0].id)
+        setUsaAlmocoKiosk(tenants[0].usa_almoco !== false)
         localStorage.setItem("kiosk_empresa_slug", tenants[0].slug)
       }
       return
@@ -75,11 +77,14 @@ const KioskPage = () => {
     localStorage.setItem("kiosk_empresa_slug", tenantSlug)
     const { data: tenant } = await supabase
       .from("tenants")
-      .select("id")
+      .select("id, usa_almoco")
       .eq("slug", tenantSlug)
       .single()
 
-    if (tenant) setEmpresaId(tenant.id)
+    if (tenant) {
+      setEmpresaId(tenant.id)
+      setUsaAlmocoKiosk(tenant.usa_almoco !== false)
+    }
   }
 
   const buscarFuncionario = async (matr: string) => {
@@ -127,10 +132,12 @@ const KioskPage = () => {
       const estado = getEstadoRegistro(ultimo?.tipo || null)
 
       const tipoAtual = estado.ultimoTipo
-        ? (estado.ultimoTipo === 'entrada' ? 'saida_almoco' as TipoRegistro
-          : estado.ultimoTipo === 'saida_almoco' ? 'retorno_almoco' as TipoRegistro
-          : estado.ultimoTipo === 'retorno_almoco' ? 'saida' as TipoRegistro
-          : 'entrada' as TipoRegistro)
+        ? (!usaAlmocoKiosk
+          ? (estado.ultimoTipo === 'entrada' ? 'saida' as TipoRegistro : 'entrada' as TipoRegistro)
+          : (estado.ultimoTipo === 'entrada' ? 'saida_almoco' as TipoRegistro
+            : estado.ultimoTipo === 'saida_almoco' ? 'retorno_almoco' as TipoRegistro
+            : estado.ultimoTipo === 'retorno_almoco' ? 'saida' as TipoRegistro
+            : 'entrada' as TipoRegistro))
         : 'entrada' as TipoRegistro
 
       setRegistroTipo(tipoAtual)

@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { name, slug, razao_social, nome_fantasia, cnpj, email, telefone, plano, limite_funcionarios, primary_color } = await req.json()
+    const { name, slug, razao_social, nome_fantasia, cnpj, email, telefone, plano, limite_funcionarios, primary_color, usa_almoco } = await req.json()
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || ""
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
@@ -32,6 +32,7 @@ serve(async (req) => {
         limite_funcionarios: limite_funcionarios || 10,
         active: true,
         primary_color: primary_color || "#16a34a",
+        usa_almoco: usa_almoco !== false,
       })
       .select()
       .single()

@@ -44,7 +44,11 @@ const EmployeeDashboard = () => {
   }
 
   const getProximoRegistro = useCallback((): TipoRegistro => {
+    const usaAlmoco = company?.usa_almoco !== false
     if (!ultimoRegistro) return 'entrada'
+    if (!usaAlmoco) {
+      return ultimoRegistro === 'entrada' ? 'saida' : 'entrada'
+    }
     switch (ultimoRegistro) {
       case 'entrada': return 'saida_almoco'
       case 'saida_almoco': return 'retorno_almoco'
@@ -52,7 +56,7 @@ const EmployeeDashboard = () => {
       case 'saida': return 'entrada'
       default: return 'entrada'
     }
-  }, [ultimoRegistro])
+  }, [ultimoRegistro, company?.usa_almoco])
 
   const getInfoProximoRegistro = () => {
     const tipo = getProximoRegistro()

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,7 +25,7 @@ const MasterTenants = () => {
   const [form, setForm] = useState({
     name: "", slug: "", razao_social: "", nome_fantasia: "",
     cnpj: "", email: "", telefone: "", plano: "basico",
-    limite_funcionarios: 10, active: true, primary_color: "#16a34a",
+    limite_funcionarios: 10, active: true, primary_color: "#16a34a", usa_almoco: true,
   })
 
   // Success dialog
@@ -71,6 +72,7 @@ const MasterTenants = () => {
           telefone: form.telefone || null, plano: form.plano,
           limite_funcionarios: form.limite_funcionarios,
           primary_color: form.primary_color,
+          usa_almoco: form.usa_almoco,
         }),
       })
 
@@ -109,6 +111,7 @@ const MasterTenants = () => {
         telefone: editForm.telefone, plano: editForm.plano,
         limite_funcionarios: editForm.limite_funcionarios,
         active: editForm.active, primary_color: editForm.primary_color,
+        usa_almoco: editForm.usa_almoco !== false,
       }).eq("id", editForm.id)
       if (error) throw error
       toast.success("Empresa atualizada!")
@@ -234,6 +237,11 @@ const MasterTenants = () => {
                 <Input type="number" value={form.limite_funcionarios}
                   onChange={(e) => setForm({ ...form, limite_funcionarios: Number(e.target.value) })} />
               </div>
+            </div>
+            <div className="flex items-center gap-2 mt-4">
+              <Switch id="usa_almoco" checked={form.usa_almoco !== false}
+                onCheckedChange={(v) => setForm({ ...form, usa_almoco: v })} />
+              <Label htmlFor="usa_almoco">Usa controle de almoço</Label>
             </div>
             <Button className="w-full mt-4" onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
               {createMutation.isPending ? "Criando..." : "Criar Empresa"}
@@ -368,6 +376,11 @@ const MasterTenants = () => {
                 <Label className={TEXT.label}>Limite Funcionários</Label>
                 <Input type="number" value={editForm.limite_funcionarios}
                   onChange={(e) => setEditForm({ ...editForm, limite_funcionarios: Number(e.target.value) })} />
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch id="edit_usa_almoco" checked={editForm.usa_almoco !== false}
+                  onCheckedChange={(v) => setEditForm({ ...editForm, usa_almoco: v })} />
+                <Label htmlFor="edit_usa_almoco">Usa controle de almoço</Label>
               </div>
             </div>
           )}

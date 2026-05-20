@@ -9,7 +9,7 @@ interface PontoState {
   registrosHoje: RegistroPonto[]
 }
 
-export function usePonto(funcionarioId?: string, empresaId?: string) {
+export function usePonto(funcionarioId?: string, empresaId?: string, usaAlmoco = true) {
   const [state, setState] = useState<PontoState>({
     registrando: false,
     ultimoRegistro: null,
@@ -38,6 +38,9 @@ export function usePonto(funcionarioId?: string, empresaId?: string) {
   const getProximoRegistro = useCallback((): TipoRegistro => {
     const ultimo = state.ultimoRegistro?.tipo
     if (!ultimo) return "entrada"
+    if (!usaAlmoco) {
+      return ultimo === "entrada" ? "saida" : "entrada"
+    }
     switch (ultimo) {
       case "entrada": return "saida_almoco"
       case "saida_almoco": return "retorno_almoco"
@@ -45,7 +48,7 @@ export function usePonto(funcionarioId?: string, empresaId?: string) {
       case "saida": return "entrada"
       default: return "entrada"
     }
-  }, [state.ultimoRegistro])
+  }, [state.ultimoRegistro, usaAlmoco])
 
   const registrar = useCallback(async (extraParams?: {
     latitude?: string | null

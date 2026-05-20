@@ -56,8 +56,11 @@ export const TIPOS_REGISTRO: Record<TipoRegistro, { label: string; icon: string;
   extra_fim: { label: 'Extra Fim', icon: 'clock-off', cor: '#3b82f6', ordem: 6 },
 }
 
-export function getProximoRegistro(ultimo: TipoRegistro | null): TipoRegistro {
+export function getProximoRegistro(ultimo: TipoRegistro | null, usaAlmoco = true): TipoRegistro {
   if (!ultimo) return 'entrada'
+  if (!usaAlmoco) {
+    return ultimo === 'entrada' ? 'saida' : 'entrada'
+  }
   const ordem = TIPOS_REGISTRO[ultimo]?.ordem || 0
   if (ordem < 3) {
     const tipos: TipoRegistro[] = ['entrada', 'saida_almoco', 'retorno_almoco', 'saida']

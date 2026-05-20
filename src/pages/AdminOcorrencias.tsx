@@ -277,7 +277,7 @@ export default function AdminOcorrencias() {
           }
         }
 
-        if (escala?.hora_saida_almoco && escala?.hora_retorno_almoco) {
+        if (company?.usa_almoco !== false && escala?.hora_saida_almoco && escala?.hora_retorno_almoco) {
           if ((temSaidaAlmoco && !temRetornoAlmoco) || (!temSaidaAlmoco && temRetornoAlmoco) ||
               (!temSaidaAlmoco && !temRetornoAlmoco && regs.length >= 3)) {
             result.push({
