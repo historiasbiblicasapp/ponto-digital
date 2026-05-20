@@ -57,8 +57,13 @@ const MasterTenants = () => {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("create-tenant", {
-        body: {
+      const res = await fetch("https://svvbfshcpetazsrgnyac.supabase.co/functions/v1/create-tenant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2dmJmc2hjcGV0YXpzcmdueWFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzMxNDMsImV4cCI6MjA5NDQ0OTE0M30.7cgDQjvVClYYpqaIiU7acrM2_sGKFsqmKndvcw4cyHI",
+        },
+        body: JSON.stringify({
           name: form.name, slug: form.slug,
           razao_social: form.razao_social || null,
           nome_fantasia: form.nome_fantasia || null,
@@ -66,11 +71,15 @@ const MasterTenants = () => {
           telefone: form.telefone || null, plano: form.plano,
           limite_funcionarios: form.limite_funcionarios,
           primary_color: form.primary_color,
-        },
+        }),
       })
-      if (error) throw new Error(error.message)
 
-      return data
+      if (!res.ok) {
+        const errBody = await res.text()
+        throw new Error(errBody || "Erro ao criar empresa")
+      }
+
+      return await res.json()
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["master-tenants"] })
