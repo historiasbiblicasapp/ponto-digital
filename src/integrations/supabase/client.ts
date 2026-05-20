@@ -26,8 +26,9 @@ if (!rawKey) {
 
 export const supabase = createClient<Database>(FINAL_URL, FINAL_KEY, {
   auth: {
-    storage: localStorage,
+    storage: typeof window !== "undefined" ? sessionStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    detectSessionInUrl: false,
+  },
 });

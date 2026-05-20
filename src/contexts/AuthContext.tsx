@@ -103,14 +103,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let mounted = true
 
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (mounted && session) {
-        await fetchUserData(session)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (mounted && session) {
+          await fetchUserData(session)
+        }
+      } finally {
+        if (mounted) setLoading(false)
       }
-      if (mounted) setLoading(false)
     }
 
     init()
+    setTimeout(() => { if (mounted) setLoading(false) }, 8000)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
