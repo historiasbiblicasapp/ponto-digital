@@ -33,6 +33,7 @@ import AdminReports from "@/pages/AdminReports"
 import AdminSettings from "@/pages/AdminSettings"
 import AdminTimeRequests from "@/pages/AdminTimeRequests"
 import FiscalAuditoria from "@/pages/FiscalAuditoria"
+import AdminOcorrencias from "@/pages/AdminOcorrencias"
 
 import MasterDashboard from "@/pages/MasterDashboard"
 import MasterTenants from "@/pages/MasterTenants"
@@ -102,6 +103,7 @@ const AppRoutes = () => {
             <Route path="escalas" element={<AdminSchedules />} />
             <Route path="relatorios" element={<AdminReports />} />
             <Route path="solicitacoes" element={<AdminTimeRequests />} />
+            <Route path="ocorrencias" element={<AdminOcorrencias />} />
             <Route path="ferias" element={<AdminFerias />} />
             <Route path="auditoria" element={<FiscalAuditoria />} />
             <Route path="configuracoes" element={<AdminSettings />} />

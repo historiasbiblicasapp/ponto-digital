@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "@/contexts/AuthContext"
 import {
   LayoutDashboard, Users, CalendarClock, FileText, Settings, LogOut,
-  BarChart3, Building2, Clock, Scale, Shield, ChevronLeft, ChevronRight, Menu, X, Umbrella
+  BarChart3, Building2, Clock, Scale, Shield, ChevronLeft, ChevronRight, Menu, X, Umbrella,
+  AlertTriangle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PulseDot } from "@/components/ui/glass-card"
@@ -31,6 +32,7 @@ const AdminSidebar = () => {
     { to: "/admin/escalas", icon: CalendarClock, label: "Escalas" },
     { to: "/admin/relatorios", icon: BarChart3, label: "Relatórios" },
     { to: "/admin/solicitacoes", icon: FileText, label: "Solicitações" },
+    { to: "/admin/ocorrencias", icon: AlertTriangle, label: "Ocorrências" },
     { to: "/admin/ferias", icon: Umbrella, label: "Férias" },
     { to: "/admin/auditoria", icon: Scale, label: "Auditoria" },
     { to: "/admin/configuracoes", icon: Settings, label: "Config" },
