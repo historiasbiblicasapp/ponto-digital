@@ -73,8 +73,7 @@ const AppRoutes = () => {
     return (
       <Routes>
         <Route path="/kiosk" element={<KioskPage />} />
-        <Route path="/admin" element={<MasterLogin />} />
-        <Route path="/master" element={<MasterLogin />} />
+        <Route path="/painel-master" element={<MasterLogin />} />
         <Route path="*" element={<CompanyLogin />} />
       </Routes>
     )
