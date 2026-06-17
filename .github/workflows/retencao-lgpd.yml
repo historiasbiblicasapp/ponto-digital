@@ -1,0 +1,16 @@
+name: Retenção LGPD Semanal
+
+on:
+  schedule:
+    - cron: "0 6 * * 0"
+  workflow_dispatch:
+
+jobs:
+  retencao:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executar retenção LGPD
+        run: |
+          curl -s -X POST "https://svvbfshcpetazsrgnyac.supabase.co/functions/v1/retencao-lgpd" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json"
