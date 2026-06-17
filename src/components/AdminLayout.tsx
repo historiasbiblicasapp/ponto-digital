@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import AdminSidebar from "./AdminSidebar"
+import DPOFooter from "./DPOFooter"
 import { PAGE_PADDING } from "@/lib/design-system"
 
 const adminPages: Record<string, string> = {
@@ -56,6 +57,7 @@ const AdminLayout = () => {
             </motion.div>
           </AnimatePresence>
         </div>
+        <DPOFooter />
       </main>
     </div>
   )

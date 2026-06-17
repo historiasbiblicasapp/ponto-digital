@@ -15,10 +15,13 @@ interface LGPDContextType {
   consentimentos: Consentimento[]
   loading: boolean
   precisaConsentir: boolean
+  precisaReconsentir: boolean
   aceitarTermo: (tipo: Consentimento["tipo"], versao?: string) => Promise<void>
   revogarConsentimento: (tipo: Consentimento["tipo"]) => Promise<void>
   solicitarExportacaoDados: () => Promise<void>
   solicitarExclusaoDados: (descricao: string) => Promise<void>
+  solicitarCorrecaoDados: (descricao: string) => Promise<void>
+  solicitarAcessoDados: (descricao: string) => Promise<void>
   verificarConsentimento: (tipo: Consentimento["tipo"]) => boolean
   versaoAtual: string
 }
@@ -33,6 +36,9 @@ export const LGPDProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true)
 
   const precisaConsentir = !consentimentos.some(c => c.tipo === "termos_uso" && c.aceito)
+  const precisaReconsentir = consentimentos.some(
+    c => c.tipo === "termos_uso" && c.aceito && c.versao_termo !== VERSAO_TERMOS
+  )
 
   useEffect(() => {
     if (user?.funcionario?.id) {
@@ -165,6 +171,40 @@ export const LGPDProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const solicitarCorrecaoDados = async (descricao: string) => {
+    if (!user?.funcionario?.id || !company?.id) return
+    try {
+      await supabase.from("lgpd_solicitacoes").insert({
+        empresa_id: company.id,
+        funcionario_id: user.funcionario.id,
+        auth_user_id: user.id,
+        tipo: "correcao",
+        descricao,
+        status: "pendente",
+      })
+      toast.success("Solicitação de correção enviada! Seu RH analisará o pedido.")
+    } catch (err: any) {
+      toast.error("Erro ao solicitar correção")
+    }
+  }
+
+  const solicitarAcessoDados = async (descricao: string) => {
+    if (!user?.funcionario?.id || !company?.id) return
+    try {
+      await supabase.from("lgpd_solicitacoes").insert({
+        empresa_id: company.id,
+        funcionario_id: user.funcionario.id,
+        auth_user_id: user.id,
+        tipo: "acesso",
+        descricao,
+        status: "pendente",
+      })
+      toast.success("Solicitação de acesso registrada! Seu RH analisará o pedido.")
+    } catch (err: any) {
+      toast.error("Erro ao solicitar acesso")
+    }
+  }
+
   const verificarConsentimento = (tipo: Consentimento["tipo"]): boolean => {
     return consentimentos.some(c => c.tipo === tipo && c.aceito)
   }
@@ -175,10 +215,13 @@ export const LGPDProvider = ({ children }: { children: ReactNode }) => {
         consentimentos,
         loading,
         precisaConsentir,
+        precisaReconsentir,
         aceitarTermo,
         revogarConsentimento,
         solicitarExportacaoDados,
         solicitarExclusaoDados,
+        solicitarCorrecaoDados,
+        solicitarAcessoDados,
         verificarConsentimento,
         versaoAtual: VERSAO_TERMOS,
       }}

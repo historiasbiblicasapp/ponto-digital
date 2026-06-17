@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import EmployeeSidebar from "./EmployeeSidebar"
+import DPOFooter from "./DPOFooter"
 import { PAGE_PADDING } from "@/lib/design-system"
 
 const employeePages: Record<string, string> = {
@@ -55,6 +56,7 @@ const EmployeeLayout = () => {
             </motion.div>
           </AnimatePresence>
         </div>
+        <DPOFooter />
       </main>
     </div>
   )

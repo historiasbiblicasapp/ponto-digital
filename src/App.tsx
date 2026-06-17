@@ -34,11 +34,13 @@ import AdminSettings from "@/pages/AdminSettings"
 import AdminTimeRequests from "@/pages/AdminTimeRequests"
 import FiscalAuditoria from "@/pages/FiscalAuditoria"
 import AdminOcorrencias from "@/pages/AdminOcorrencias"
+import AdminLGPD from "@/pages/AdminLGPD"
 
 import MasterDashboard from "@/pages/MasterDashboard"
 import MasterTenants from "@/pages/MasterTenants"
 
 import NotFound from "@/pages/NotFound"
+import CookieConsent from "@/components/CookieConsent"
 
 const queryClient = new QueryClient()
 
@@ -52,11 +54,11 @@ const LoadingScreen = () => (
 )
 
 const LGPDGuard = ({ children }: { children: React.ReactNode }) => {
-  const { precisaConsentir, loading } = useLGPD()
+  const { precisaConsentir, precisaReconsentir, loading } = useLGPD()
   const { user } = useAuth()
 
   if (loading) return <LoadingScreen />
-  if (precisaConsentir && user?.role === "user") {
+  if ((precisaConsentir || precisaReconsentir) && user?.role === "user") {
     return <Navigate to="/app/lgpd-consentimento" replace />
   }
   return <>{children}</>
@@ -107,7 +109,7 @@ const AppRoutes = () => {
             <Route path="ferias" element={<AdminFerias />} />
             <Route path="auditoria" element={<FiscalAuditoria />} />
             <Route path="configuracoes" element={<AdminSettings />} />
-            <Route path="lgpd" element={<LGPDMeusDados />} />
+            <Route path="lgpd" element={<AdminLGPD />} />
           </Route>
           <Route path="/app" element={<EmployeeLayout />}>
             <Route index element={<LGPDGuard><EmployeeDashboard /></LGPDGuard>} />
@@ -158,6 +160,7 @@ const App = () => (
         <ThemeProvider>
           <NotificationProvider>
             <BrowserRouter future={{ v7_relativeSplatPath: true }}>
+              <CookieConsent />
               <AppRoutes />
             </BrowserRouter>
           </NotificationProvider>

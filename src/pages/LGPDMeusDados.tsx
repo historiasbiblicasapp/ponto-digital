@@ -11,19 +11,32 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import {
   Shield, Download, Trash2, CheckCircle2, XCircle, FileText,
-  UserCheck, Clock, MapPin, Eye
+  UserCheck, Clock, MapPin, Eye, FileEdit, Fingerprint, Bell
 } from "lucide-react"
 import { STACK, CARD_PADDING, TEXT, FLEX, GRID } from "@/lib/design-system"
+
+const LEGAL_BASES: Record<string, string> = {
+  termos_uso: "Art. 7º, I LGPD - Consentimento",
+  privacidade: "Art. 7º, I LGPD - Consentimento",
+  geolocalizacao: "Art. 7º, I e IX LGPD - Consentimento e proteção à saúde",
+  dados_biometricos: "Art. 7º, II LGPD - Obrigação legal (CLT, Portaria MTP 671/2021)",
+  comunicacao: "Art. 7º, I LGPD - Consentimento",
+}
 
 const LGPDMeusDados = () => {
   const { user } = useAuth()
   const {
     consentimentos, aceitarTermo, revogarConsentimento,
-    solicitarExportacaoDados, solicitarExclusaoDados
+    solicitarExportacaoDados, solicitarExclusaoDados,
+    solicitarCorrecaoDados, solicitarAcessoDados
   } = useLGPD()
   const [exclusaoDesc, setExclusaoDesc] = useState("")
+  const [correcaoDesc, setCorrecaoDesc] = useState("")
+  const [acessoDesc, setAcessoDesc] = useState("")
   const [exportando, setExportando] = useState(false)
   const [excluindo, setExcluindo] = useState(false)
+  const [corrigindo, setCorrigindo] = useState(false)
+  const [acessando, setAcessando] = useState(false)
 
   const handleExportar = async () => {
     setExportando(true)
@@ -45,6 +58,34 @@ const LGPDMeusDados = () => {
       setExclusaoDesc("")
     } finally {
       setExcluindo(false)
+    }
+  }
+
+  const handleSolicitarCorrecao = async () => {
+    if (!correcaoDesc.trim()) {
+      toast.error("Descreva quais dados deseja corrigir")
+      return
+    }
+    setCorrigindo(true)
+    try {
+      await solicitarCorrecaoDados(correcaoDesc)
+      setCorrecaoDesc("")
+    } finally {
+      setCorrigindo(false)
+    }
+  }
+
+  const handleSolicitarAcesso = async () => {
+    if (!acessoDesc.trim()) {
+      toast.error("Descreva quais dados deseja acessar")
+      return
+    }
+    setAcessando(true)
+    try {
+      await solicitarAcessoDados(acessoDesc)
+      setAcessoDesc("")
+    } finally {
+      setAcessando(false)
     }
   }
 
@@ -83,10 +124,12 @@ const LGPDMeusDados = () => {
       )}
 
       <Tabs defaultValue="consentimentos">
-        <TabsList className="w-full grid grid-cols-3">
-          <TabsTrigger value="consentimentos" className="gap-1 text-xs sm:text-sm"><Shield className="w-3 h-3 sm:w-4 sm:h-4" />Consentimentos</TabsTrigger>
-          <TabsTrigger value="exportar" className="gap-1 text-xs sm:text-sm"><Download className="w-3 h-3 sm:w-4 sm:h-4" />Exportar Dados</TabsTrigger>
-          <TabsTrigger value="excluir" className="gap-1 text-xs sm:text-sm"><Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />Exclusão</TabsTrigger>
+        <TabsList className="w-full grid grid-cols-5">
+          <TabsTrigger value="consentimentos" className="gap-1 text-xs"><Shield className="w-3 h-3" />Consentimentos</TabsTrigger>
+          <TabsTrigger value="exportar" className="gap-1 text-xs"><Download className="w-3 h-3" />Exportar</TabsTrigger>
+          <TabsTrigger value="corrigir" className="gap-1 text-xs"><FileEdit className="w-3 h-3" />Corrigir</TabsTrigger>
+          <TabsTrigger value="acessar" className="gap-1 text-xs"><Eye className="w-3 h-3" />Acessar</TabsTrigger>
+          <TabsTrigger value="excluir" className="gap-1 text-xs"><Trash2 className="w-3 h-3" />Excluir</TabsTrigger>
         </TabsList>
 
         <TabsContent value="consentimentos" className={STACK.section + " mt-4 sm:mt-6"}>
@@ -94,31 +137,31 @@ const LGPDMeusDados = () => {
             <h3 className={TEXT.sectionTitle + " mb-4"}>Meus Consentimentos</h3>
             <div className={STACK.tight}>
               {[
-                { tipo: "termos_uso" as const, label: "Termos de Uso", desc: "Aceite dos termos de uso do sistema" },
-                { tipo: "privacidade" as const, label: "Política de Privacidade", desc: "Aceite da política de privacidade" },
-                { tipo: "geolocalizacao" as const, label: "Geolocalização", desc: "Coleta de localização no registro de ponto" },
-                { tipo: "dados_biometricos" as const, label: "Dados Biométricos", desc: "Armazenamento de foto e dados biométricos" },
-                { tipo: "comunicacao" as const, label: "Comunicação", desc: "Envio de notificações e comunicados" },
+                { tipo: "termos_uso" as const, label: "Termos de Uso", desc: "Aceite dos termos de uso do sistema", icon: FileText },
+                { tipo: "privacidade" as const, label: "Política de Privacidade", desc: "Aceite da política de privacidade", icon: Shield },
+                { tipo: "geolocalizacao" as const, label: "Geolocalização", desc: "Coleta de localização no registro de ponto", icon: MapPin },
+                { tipo: "dados_biometricos" as const, label: "Dados Biométricos", desc: "Armazenamento de foto e dados biométricos", icon: Fingerprint },
+                { tipo: "comunicacao" as const, label: "Comunicação", desc: "Envio de notificações e comunicados", icon: Bell },
               ].map((item) => {
                 const consent = consentimentos.find(c => c.tipo === item.tipo)
                 const aceito = consent?.aceito || false
+                const Icon = item.icon
                 return (
-                  <div key={item.tipo} className={FLEX.between + " p-3 bg-muted/50 rounded-lg"}>
-                    <div className={FLEX.center + " min-w-0 flex-1"}>
-                      {aceito
-                        ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 shrink-0" />
-                        : <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 shrink-0" />
-                      }
-                      <div className="min-w-0">
-                        <p className="font-medium text-xs sm:text-sm truncate">{item.label}</p>
-                        <p className={TEXT.small + " truncate"}>{item.desc}</p>
-                        {consent?.data_aceite && (
-                          <p className={TEXT.small + " mt-0.5"}>
-                            Aceito em {new Date(consent.data_aceite).toLocaleDateString("pt-BR")}
-                          </p>
-                        )}
+                  <div key={item.tipo} className="space-y-1 p-3 bg-muted/50 rounded-lg">
+                    <div className={FLEX.betweenNowrap}>
+                      <div className={FLEX.center + " min-w-0 flex-1"}>
+                        <Icon className={"w-4 h-4 shrink-0 " + (aceito ? "text-green-500" : "text-red-400")} />
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{item.label}</p>
+                          <p className={TEXT.small + " truncate"}>{item.desc}</p>
+                          <p className={TEXT.small + " text-primary"}>Base legal: {LEGAL_BASES[item.tipo]}</p>
+                          {consent?.data_aceite && (
+                            <p className={TEXT.small + " mt-0.5"}>
+                              {aceito ? "Aceito" : "Revogado"} em {new Date(consent.data_aceite).toLocaleDateString("pt-BR")}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
                     <div className="shrink-0">
                       {!aceito ? (
                         <Button size="sm" variant="outline" onClick={() => aceitarTermo(item.tipo)}>
@@ -129,6 +172,7 @@ const LGPDMeusDados = () => {
                           Revogar
                         </Button>
                       )}
+                    </div>
                     </div>
                   </div>
                 )
@@ -157,6 +201,57 @@ const LGPDMeusDados = () => {
               </div>
               <Button onClick={handleExportar} disabled={exportando}>
                 {exportando ? "Exportando..." : "Exportar Meus Dados (JSON)"}
+              </Button>
+              <p className={TEXT.small}>Formato interoperável — você pode importar em outro sistema</p>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="corrigir" className="mt-4 sm:mt-6">
+          <Card className={CARD_PADDING.spacious}>
+            <div className="text-center space-y-4">
+              <FileEdit className="w-8 h-8 sm:w-12 sm:h-12 text-blue-500 mx-auto" />
+              <h3 className={TEXT.sectionTitle}>Solicitar Correção de Dados</h3>
+              <p className={TEXT.body + " max-w-md mx-auto"}>
+                Solicite a correção de dados pessoais incompletos, inexatos ou desatualizados
+                (Art. 18, III da LGPD).
+              </p>
+              <div className="text-left space-y-2">
+                <Label className={TEXT.label}>Descreva quais dados devem ser corrigidos e como</Label>
+                <Textarea
+                  placeholder="Exemplo: Meu telefone mudou para (11) 99999-9999. Meu cargo agora é Analista Sênior..."
+                  value={correcaoDesc}
+                  onChange={(e) => setCorrecaoDesc(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <Button onClick={handleSolicitarCorrecao} disabled={corrigindo} className="w-full sm:w-auto">
+                {corrigindo ? "Enviando..." : "Solicitar Correção de Dados"}
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="acessar" className="mt-4 sm:mt-6">
+          <Card className={CARD_PADDING.spacious}>
+            <div className="text-center space-y-4">
+              <Eye className="w-8 h-8 sm:w-12 sm:h-12 text-purple-500 mx-auto" />
+              <h3 className={TEXT.sectionTitle}>Solicitar Acesso aos Dados</h3>
+              <p className={TEXT.body + " max-w-md mx-auto"}>
+                Solicite acesso detalhado a todos os seus dados pessoais tratados pelo sistema
+                (Art. 18, I da LGPD).
+              </p>
+              <div className="text-left space-y-2">
+                <Label className={TEXT.label}>Especifique quais dados deseja acessar (opcional)</Label>
+                <Textarea
+                  placeholder="Exemplo: Gostaria de acessar todos os registros de ponto dos últimos 12 meses e os logs de quem acessou meus dados..."
+                  value={acessoDesc}
+                  onChange={(e) => setAcessoDesc(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <Button onClick={handleSolicitarAcesso} disabled={acessando} className="w-full sm:w-auto">
+                {acessando ? "Enviando..." : "Solicitar Acesso aos Dados"}
               </Button>
             </div>
           </Card>
