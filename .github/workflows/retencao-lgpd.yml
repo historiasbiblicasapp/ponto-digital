@@ -12,5 +12,5 @@ jobs:
       - name: Executar retenção LGPD
         run: |
           curl -s -X POST "https://svvbfshcpetazsrgnyac.supabase.co/functions/v1/retencao-lgpd" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2dmJmc2hjcGV0YXpzcmdueWFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzMxNDMsImV4cCI6MjA5NDQ0OTE0M30.7cgDQjvVClYYpqaIiU7acrM2_sGKFsqmKndvcw4cyHI" \
             -H "Content-Type: application/json"
